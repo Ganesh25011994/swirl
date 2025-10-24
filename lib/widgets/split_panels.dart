@@ -19,6 +19,7 @@ import 'package:dashboard/pages/dynamic_form_builder.dart';
 import 'package:dashboard/types/drag_drop_types.dart';
 import 'package:dashboard/utils/math_utils.dart';
 import 'package:dashboard/widgets/item_panel.dart';
+import 'package:dashboard/widgets/mobile_screen.dart';
 import 'package:dashboard/widgets/my_drop_region.dart';
 import 'package:dashboard/widgets/right_panel.dart';
 import 'package:flutter/material.dart';
@@ -229,7 +230,8 @@ class _SplitPanelState extends State<SplitPanel> {
                     context,
                     MaterialPageRoute(
                       builder:
-                          (context) => DynamicForm(widgetSchema: schema.schema),
+                          (context) =>
+                              DynamicForm(widgetSchema: schemaWidget.schema),
                     ),
                   );
                 },

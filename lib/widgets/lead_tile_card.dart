@@ -1,4 +1,3 @@
-
 /*
  @created on : May 7,2025
  @author : Akshayaa 
@@ -33,8 +32,7 @@ class LeadTileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-      },
+      onTap: () {},
       child: Card(
         elevation: 2,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -54,29 +52,41 @@ class LeadTileCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(title,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text(subtitle,
-                            style: TextStyle(color: Colors.grey)),
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(subtitle, style: TextStyle(color: Colors.grey)),
                       ],
                     ),
                   ),
-                  const Icon(Icons.arrow_forward_ios,size: 16, color: Colors.black),
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    size: 16,
+                    color: Colors.black,
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(child: iconWithLabel(Icons.phone_outlined, phone)),
-                  Expanded(child: iconWithLabel(Icons.calendar_month_outlined, createdon)),
+                  Expanded(
+                    child: iconWithLabel(
+                      Icons.calendar_month_outlined,
+                      createdon,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(child: iconWithLabel(Icons.location_pin, location)),
-                  Expanded(child: iconWithLabel(Icons.currency_rupee_outlined, formatAmount(loanamount))),
+                  // Expanded(child: iconWithLabel(Icons.currency_rupee_outlined, formatAmount(loanamount))),
                 ],
               ),
             ],

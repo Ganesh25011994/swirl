@@ -152,14 +152,14 @@ class DynamicForm extends StatelessWidget {
             child: Container(
               width: 300,
               height: 800,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.black,
-                  width: 5,
-                  style: BorderStyle.solid,
-                ),
-                borderRadius: BorderRadius.circular(10),
-              ),
+              // decoration: BoxDecoration(
+              //   border: Border.all(
+              //     color: Colors.black,
+              //     width: 5,
+              //     style: BorderStyle.solid,
+              //   ),
+              //   borderRadius: BorderRadius.circular(10),
+              // ),
               child: Padding(
                 padding: const EdgeInsets.all(8),
                 child: Column(
@@ -167,14 +167,6 @@ class DynamicForm extends StatelessWidget {
                   children: [
                     ...buildFormWidgets(widgets),
                     const SizedBox(height: 16),
-                    // ReactiveFormConsumer(
-                    //   builder: (context, form, child) {
-                    //     return ElevatedButton(
-                    //       onPressed: form.valid ? () {} : null,
-                    //       child: const Text('Submit'),
-                    //     );
-                    //   },
-                    // ),
                   ],
                 ),
               ),
