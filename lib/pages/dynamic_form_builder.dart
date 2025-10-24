@@ -160,41 +160,45 @@ class DynamicForm extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text('HomePage')),
-      body: ReactiveForm(
-        formGroup: formGroup,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Center(
-            // child: Container(
-            //   width: 300,
-            //   height: 800,
-            //   decoration: BoxDecoration(
-            //     border: Border.all(
-            //       color: Colors.black,
-            //       width: 5,
-            //       style: BorderStyle.solid,
-            //     ),
-            //     borderRadius: BorderRadius.circular(10),
-            //   ),
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ...buildFormWidgets(widgets),
-                    const SizedBox(height: 16),
-                    // ReactiveFormConsumer(
-                    //   builder: (context, form, child) {
-                    //     return ElevatedButton(
-                    //       onPressed: form.valid ? () {} : null,
-                    //       child: const Text('Submit'),
-                    //     );
-                    //   },
-                    // ),
-                  ],
-                ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: ReactiveForm(
+            formGroup: formGroup,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Center(
+                // child: Container(
+                //   width: 300,
+                //   height: 800,
+                //   decoration: BoxDecoration(
+                //     border: Border.all(
+                //       color: Colors.black,
+                //       width: 5,
+                //       style: BorderStyle.solid,
+                //     ),
+                //     borderRadius: BorderRadius.circular(10),
+                //   ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ...buildFormWidgets(widgets),
+                        const SizedBox(height: 16),
+                        // ReactiveFormConsumer(
+                        //   builder: (context, form, child) {
+                        //     return ElevatedButton(
+                        //       onPressed: form.valid ? () {} : null,
+                        //       child: const Text('Submit'),
+                        //     );
+                        //   },
+                        // ),
+                      ],
+                    ),
+                  ),
+                // ),
               ),
-            // ),
+            ),
           ),
         ),
       ),
