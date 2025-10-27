@@ -13,7 +13,7 @@ part of 'bpwidget_action_bloc.dart';
 class BpwidgetActionState extends Equatable {
   final List<BpwidgetAction> actionList;
   final SaveStatus status;
-  BpwidgetActionState({required this.actionList, required this.status});
+  const BpwidgetActionState({required this.actionList, required this.status});
 
   factory BpwidgetActionState.init() =>
       BpwidgetActionState(actionList: [], status: SaveStatus.init);

@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 class PanelHeader extends StatelessWidget {
   final double panelWidth;
   final String title;
-  const PanelHeader({required this.panelWidth, required this.title});
+  const PanelHeader({super.key, required this.panelWidth, required this.title});
 
   @override
   Widget build(BuildContext context) {

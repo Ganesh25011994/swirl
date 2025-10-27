@@ -4,7 +4,6 @@
 @desc       : custom types required for drag and drag panel behaviour
 
 */
-import 'package:dashboard/bloc/bpwidgetprops/model/bpwidget_props.dart';
 
 enum Panel { upper, lower }
 

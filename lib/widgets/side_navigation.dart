@@ -8,6 +8,8 @@
 import 'package:flutter/material.dart';
 
 class Sidenavigationbar extends StatelessWidget {
+  const Sidenavigationbar({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Drawer(

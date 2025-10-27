@@ -10,6 +10,8 @@ import 'pending_leads.dart';
 import 'completed_leads.dart';
 
 class LeadTabBar extends StatelessWidget {
+  const LeadTabBar({super.key});
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(

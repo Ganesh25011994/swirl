@@ -10,6 +10,7 @@
 import 'package:dashboard/bloc/bpwidgetaction/model/dataprovider/bpwidget_tasks_dataprovider.dart';
 
 class NavigationTaskDataProvider extends BPTaskDataprovider {
+  @override
   final String url;
   NavigationTaskDataProvider({required this.url}) : super(url: url);
   @override
@@ -17,7 +18,9 @@ class NavigationTaskDataProvider extends BPTaskDataprovider {
 }
 
 class NavigationWithDataTaskProvider extends BPTaskDataprovider {
+  @override
   final String url;
+  @override
   final Map<String, dynamic> data;
   NavigationWithDataTaskProvider({required this.url, required this.data})
     : super(url: url, data: data);

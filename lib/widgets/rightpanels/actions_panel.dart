@@ -9,7 +9,6 @@ import 'package:dashboard/bloc/bpwidgets/model/bpwidget.dart';
 import 'package:dashboard/types/bpwidget_types.dart';
 import 'package:dashboard/types/global_types.dart';
 import 'package:dashboard/utils/math_utils.dart';
-import 'package:dashboard/widgets/customcontrols/key_value_dropdown.dart';
 import 'package:dashboard/widgets/customcontrols/key_value_reactive_dropdown.dart';
 import 'package:dashboard/widgets/rightpanels/panel_header.dart';
 import 'package:flutter/material.dart';

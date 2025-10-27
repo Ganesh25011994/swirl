@@ -13,6 +13,8 @@ import '../widgets/lead_tab_bar.dart';
 import '../widgets/search_bar.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   State<HomeScreen> createState() => HomeScreenState();
 }

@@ -49,10 +49,8 @@ class BPPageController extends BPPageHelper with SelectePageMixin {
 
   @override
   void selectPage(String pageId) {
-    if (pagesRegistry != null) {
-      pagesRegistry[pageId]!.isSelected = true;
+    pagesRegistry[pageId]!.isSelected = true;
     }
-  }
 }
 
 abstract class BPPageHelper {

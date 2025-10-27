@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'lead_tile_card.dart';
 
 class PendingLeads extends StatelessWidget {
+  const PendingLeads({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ListView(

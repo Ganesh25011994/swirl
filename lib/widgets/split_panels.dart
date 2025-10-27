@@ -7,6 +7,7 @@
 */
 import 'dart:math';
 
+import 'package:dashboard/api_call/json_server_api_call.dart';
 import 'package:dashboard/appdata/page/page_global_constants.dart';
 import 'package:dashboard/appstyles/global_colors.dart';
 import 'package:dashboard/bloc/bpwidgetaction/model/action/bpwidget_action.dart';
@@ -151,7 +152,7 @@ class _SplitPanelState extends State<SplitPanel> {
   }
 
   void onItemClickRef(BPWidget widget) {
-    print('onItemClickRef => ${widget}');
+    print('onItemClickRef => $widget');
     selectedWidgetProps = widget;
     setState(() {});
   }
@@ -172,9 +173,9 @@ class _SplitPanelState extends State<SplitPanel> {
         });
         final indexOfSelectedBpWidget = upper.indexOf(upperFiltered.first);
         if (indexOfSelectedBpWidget != -1) {
-          BPWidget _upper = upperFiltered.first;
+          BPWidget upper = upperFiltered.first;
 
-          _upper.bpwidgetProps = _upper.bpwidgetProps!.copyWith(
+          upper.bpwidgetProps = upper.bpwidgetProps!.copyWith(
             controlName: state.bpWidgetsList![0].bpwidgetProps!.controlName,
             label: state.bpWidgetsList![0].bpwidgetProps!.label,
             controlType: state.bpWidgetsList![0].bpwidgetProps!.controlType,
@@ -188,14 +189,14 @@ class _SplitPanelState extends State<SplitPanel> {
             id: state.bpWidgetsList![0].bpwidgetProps!.id,
           );
           if (state.bpWidgetsList![0].bpwidgetAction == null) {
-            _upper.bpwidgetAction = [BpwidgetAction.initWithId(id: '')];
+            upper.bpwidgetAction = [BpwidgetAction.initWithId(id: '')];
           } else {
-            _upper.bpwidgetAction = state.bpWidgetsList![0].bpwidgetAction;
+            upper.bpwidgetAction = state.bpWidgetsList![0].bpwidgetAction;
           }
 
           // _upper.copyWith(bpwidgetProps: state.bpWidgetsList![0].bpwidgetProps);
-          upper[indexOfSelectedBpWidget] = _upper;
-          print(upper[0].bpwidgetProps!.label);
+          // upper[indexOfSelectedBpWidget] = upper;
+          // print(upper[0].bpwidgetProps!.label);
         }
       },
       builder: (context, state) {
@@ -208,6 +209,18 @@ class _SplitPanelState extends State<SplitPanel> {
             title: Text('BuildPerfect'),
             elevation: 2,
             actions: [
+              IconButton(
+                onPressed: () async {
+                  final schema = BpwidgetSchema(schema: upper);
+                  final schemaJson = schema.toJson();
+                  final schemaWidget = BpwidgetSchema.fromJson(schemaJson);
+                  for (int i = 0; i < schemaWidget.schema.length; i++) {
+                    await JsonServerApiCall().saveBPWidget(schemaWidget.schema[i].toJson());
+                  }
+                  print("completed");
+                }, 
+                icon: Icon(Icons.save),
+              ),
               IconButton(
                 onPressed: () {
                   // upper.asMap().entries.map((e) {
@@ -231,7 +244,8 @@ class _SplitPanelState extends State<SplitPanel> {
                     MaterialPageRoute(
                       builder:
                           (context) =>
-                              DynamicForm(widgetSchema: schemaWidget.schema),
+                              // DynamicForm(widgetSchema: schemaWidget.schema),
+                              MobileScreen(pageData: schemaWidget.schema)
                     ),
                   );
                 },

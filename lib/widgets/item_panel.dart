@@ -303,7 +303,7 @@ class _ItemsPanelState extends State<ItemPanel> {
   Widget build(BuildContext context) {
     /// have a copy of dragstartCopy to keep the local copy
     /// so
-    if (widget.items.length > 0) {
+    if (widget.items.isNotEmpty) {
       print(
         'itemscopy WIDGET ID   => ${widget.items[0].id} ${widget.items[0].bpwidgetProps}',
       );

@@ -18,7 +18,7 @@ class LeadTileCard extends StatelessWidget {
   final String loanamount;
 
   const LeadTileCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.subtitle,
     required this.icon,
@@ -27,7 +27,7 @@ class LeadTileCard extends StatelessWidget {
     required this.createdon,
     required this.location,
     required this.loanamount,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

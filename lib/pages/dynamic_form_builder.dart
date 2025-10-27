@@ -12,7 +12,7 @@ import 'dart:convert';
 class DynamicForm extends StatelessWidget {
   final List<BPWidget> widgetSchema;
 
-  const DynamicForm({Key? key, required this.widgetSchema}) : super(key: key);
+  const DynamicForm({super.key, required this.widgetSchema});
 
   FormGroup buildFormGroup(List<BPWidget> widgets) {
     final controls = <String, AbstractControl<dynamic>>{};
@@ -149,7 +149,7 @@ class DynamicForm extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Center(
-            child: Container(
+            child: SizedBox(
               width: 300,
               height: 800,
               // decoration: BoxDecoration(

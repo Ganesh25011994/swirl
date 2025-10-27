@@ -5,7 +5,6 @@
 */
 
 import 'package:bloc/bloc.dart';
-import 'package:dashboard/bloc/bpwidgetprops/bpwidget_props_bloc.dart';
 import 'package:dashboard/bloc/bpwidgetprops/model/bpwidget_props.dart';
 import 'package:dashboard/types/drag_drop_types.dart';
 import 'package:equatable/equatable.dart';
