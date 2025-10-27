@@ -31,7 +31,7 @@ class BPPageController extends BPPageHelper with SelectePageMixin {
 
   factory BPPageController.loadNPages(int totalPages) {
     PageRegistryMap pageRegistryMap = {};
-    for (int i = 0; i < totalPages; i++) {
+    for (int i = 1; i <= totalPages; i++) {
       String id = MathUtils.generateUniqueID();
       final entry = loadPage(pageId: id, pageName: 'page$i');
       pageRegistryMap.addEntries([entry]);

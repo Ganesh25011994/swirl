@@ -5,6 +5,7 @@
                 
 */
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:dashboard/appstyles/global_styles.dart';
 import 'package:dashboard/bloc/bpwidgetprops/model/bpwidget_props.dart';
@@ -12,10 +13,14 @@ import 'package:dashboard/bloc/bpwidgets/model/bpwidget.dart';
 import 'package:dashboard/types/drag_drop_types.dart';
 import 'package:dashboard/widgets/containers/dragged_holder.dart';
 import 'package:dashboard/widgets/my_draggable_widget.dart';
+import 'package:dashboard/widgets/rightpanels/panel_header.dart';
+import 'package:dashboard/widgets/search_bar.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 
 class ItemPanel extends StatefulWidget {
+  final double width;
+  // final List<PlaceholderWidgets> items;
   final List<BPWidget> items;
   final int crossAxisCount;
   final double spacing;
@@ -27,6 +32,7 @@ class ItemPanel extends StatefulWidget {
   final Function(BPWidget item)? onItemClicked;
   const ItemPanel({
     super.key,
+    required this.width,
     required this.items,
     required this.crossAxisCount,
     required this.spacing,
@@ -43,11 +49,25 @@ class ItemPanel extends StatefulWidget {
 }
 
 class _ItemsPanelState extends State<ItemPanel> {
+  String searchText = '';
+  List<BPWidget> itemsCopy = [];
+  List<BPWidget> filteredItems = [];
+  List<PlaceholderWidgets> displayList = [];
+
+  bool searchOpt = false;
+  @override
+  void initState() {
+    super.initState();
+    itemsCopy = widget.items;
+    filteredItems = List.from(itemsCopy);
+  }
+
   /// function return the corresponding formcontrol widgets
   /// which serves as visual placeholders which are dragged from
   /// left widgets panels
 
   int selectedIndex = 0;
+  int navSelectedIndex = 0;
 
   Widget getWidgetPlaceholders(
     BPWidget props,
@@ -96,7 +116,20 @@ class _ItemsPanelState extends State<ItemPanel> {
                 ),
               ),
               selectedIndex == index
-                  ? GlobalStyles.selectedIcon
+                  ? Row(
+                    children: [
+                      GlobalStyles.selectedIcon,
+                      SizedBox(width: 5),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            itemsCopy.removeAt(selectedIndex);
+                          });
+                        },
+                        icon: GlobalStyles.deleteIcon,
+                      ),
+                    ],
+                  )
                   : GlobalStyles.fillerSizedBox50,
             ],
           ),
@@ -139,7 +172,20 @@ class _ItemsPanelState extends State<ItemPanel> {
                 ),
               ),
               selectedIndex == index
-                  ? GlobalStyles.selectedIcon
+                  ? Row(
+                    children: [
+                      GlobalStyles.selectedIcon,
+                      SizedBox(width: 5),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            itemsCopy.removeAt(selectedIndex);
+                          });
+                        },
+                        icon: GlobalStyles.deleteIcon,
+                      ),
+                    ],
+                  )
                   : GlobalStyles.fillerSizedBox50,
             ],
           ),
@@ -189,7 +235,20 @@ class _ItemsPanelState extends State<ItemPanel> {
               ),
               GlobalStyles.fillerSizedBox50,
               selectedIndex == index
-                  ? GlobalStyles.selectedIcon
+                  ? Row(
+                    children: [
+                      GlobalStyles.selectedIcon,
+                      SizedBox(width: 5),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            itemsCopy.removeAt(selectedIndex);
+                          });
+                        },
+                        icon: GlobalStyles.deleteIcon,
+                      ),
+                    ],
+                  )
                   : GlobalStyles.fillerSizedBox50,
             ],
           ),
@@ -345,42 +404,120 @@ class _ItemsPanelState extends State<ItemPanel> {
             }).toList(),
       );
     } else {
-      return GridView.count(
-        crossAxisCount: widget.crossAxisCount,
-        mainAxisSpacing: 5,
-        crossAxisSpacing: 5,
-        padding: const EdgeInsets.all(4),
-        children:
-            itemsCopy.asMap().entries.map<Widget>((e) {
-              Color textColor = Colors.white;
-              Widget child = Card(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.teal.shade400,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      renderIconsForFormControlsCard(e.value.widgetType!),
-                      Text(
-                        e.value.widgetType!.name,
-                        style: TextStyle(color: textColor, fontSize: 12),
+      return Row(
+        children: [
+          Expanded(
+            child: Card(
+              color: Colors.white,
+              child: Column(
+                children: [
+                  searchOpt == false
+                      ? Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: PanelHeader(
+                                panelWidth: widget.width,
+                                title: 'Widget List',
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  searchOpt = true;
+                                });
+                              },
+                              icon: Icon(Icons.search),
+                            ),
+                          ],
+                        ),
+                      )
+                      : SearchBarWidget(
+                        hintText: "Search Widget",
+                        onChanged: (value) {
+                          setState(() {
+                            searchText = value.toLowerCase();
+                            filteredItems =
+                                itemsCopy.where((item) {
+                                  return item.widgetType!.name
+                                      .toLowerCase()
+                                      .contains(searchText);
+                                }).toList();
+                          });
+                        },
+                        onPressed: (isCleared) {
+                          if (isCleared) {
+                            setState(() {
+                              searchText = '';
+                              searchOpt = false;
+                              filteredItems = itemsCopy;
+                            });
+                          }
+                        },
                       ),
-                    ],
+
+                  Expanded(
+                    child: GridView.count(
+                      crossAxisCount: widget.crossAxisCount,
+                      mainAxisSpacing: 5,
+                      crossAxisSpacing: 5,
+                      padding: const EdgeInsets.all(4),
+                      children:
+                          filteredItems.asMap().entries.map<Widget>((e) {
+                            int index = -1;
+                            if (filteredItems.length < itemsCopy.length) {
+                              index = itemsCopy.indexWhere(
+                                (item) => item == filteredItems[0],
+                              );
+                            }
+
+                            Color textColor = Colors.white;
+                            Widget child = Card(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.teal.shade400,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    renderIconsForFormControlsCard(
+                                      e.value.widgetType!,
+                                    ),
+
+                                    Text(
+                                      e.value.widgetType!.name,
+                                      style: TextStyle(
+                                        color: textColor,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                            return Draggable(
+                              feedback: child,
+                              child: MyDraggableWidget(
+                                data: e.value.widgetType!.name,
+                                onDragStart:
+                                    () => widget.onDragStart((
+                                      index != -1 ? index : e.key,
+                                      widget.panel,
+                                    )),
+                                child: child,
+                              ),
+                            );
+                          }).toList(),
+                    ),
                   ),
-                ),
-              );
-              return Draggable(
-                feedback: child,
-                child: MyDraggableWidget(
-                  data: e.value.widgetType!.name,
-                  onDragStart: () => widget.onDragStart((e.key, widget.panel)),
-                  child: child,
-                ),
-              );
-            }).toList(),
+                ],
+              ),
+            ),
+          ),
+        ],
       );
     }
   }

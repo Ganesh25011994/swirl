@@ -15,9 +15,12 @@ import 'package:dashboard/bloc/bpwidgetprops/model/bpwidget_props.dart';
 import 'package:dashboard/bloc/bpwidgets/bpwidget_bloc.dart';
 import 'package:dashboard/bloc/bpwidgets/model/bpwidget.dart';
 import 'package:dashboard/bloc/bpwidgets/model/bpwidget_schema.dart';
+import 'package:dashboard/bloc/bpwidgets/page_container.dart';
+import 'package:dashboard/pages/canva_nav_rail.dart';
 import 'package:dashboard/pages/dynamic_form_builder.dart';
 import 'package:dashboard/types/drag_drop_types.dart';
 import 'package:dashboard/utils/math_utils.dart';
+import 'package:dashboard/widgets/custom_navigation_rail.dart';
 import 'package:dashboard/widgets/item_panel.dart';
 import 'package:dashboard/widgets/mobile_screen.dart';
 import 'package:dashboard/widgets/my_drop_region.dart';
@@ -101,6 +104,8 @@ class _SplitPanelState extends State<SplitPanel> {
   BPWidget? hoveringData;
   BPWidget? selectedWidgetProps;
 
+  int navSelectedIndex = 0;
+
   /// this method is called when the itemplaceholder is dragged
   /// it's set  the state -> dragStart and data state properties
   ///
@@ -136,6 +141,7 @@ class _SplitPanelState extends State<SplitPanel> {
             label: '',
             controlName:
                 '${bpController.pagesRegistry.entries.first.value.pageName}_',
+
             controlType: hoveringData!.widgetType!.name,
             id: uniqueID,
           ),
@@ -231,7 +237,7 @@ class _SplitPanelState extends State<SplitPanel> {
                     MaterialPageRoute(
                       builder:
                           (context) =>
-                              DynamicForm(widgetSchema: schemaWidget.schema),
+                              MobileScreen(pageData: schemaWidget.schema),
                     ),
                   );
                 },
@@ -246,51 +252,94 @@ class _SplitPanelState extends State<SplitPanel> {
                   constraints.maxWidth - (widget.itemSpacing * gutter);
               final columnWidth = spaceForColumns / widget.columns;
               final itemSize = Size(columnWidth, columnWidth);
-              final leftPanelWidth = constraints.maxWidth / 4;
+              final double navrailWidth = 100;
+              final leftPanelWidth = constraints.maxWidth / 5;
               final centerPanelWidth = constraints.maxWidth / 2;
               final rightPanelWidth =
                   constraints.maxWidth -
                   (leftPanelWidth + centerPanelWidth) +
                   80;
+              final leftPanelheight = constraints.maxHeight / 2;
               return Padding(
                 padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
                 child: Stack(
                   children: [
                     Positioned(
-                      // for draggable component
-                      width: leftPanelWidth - 100,
-                      height: constraints.maxHeight,
+                      width: navrailWidth,
                       left: 0,
-                      child: MyDropRegion(
-                        onDrop: drop,
-                        updateDropPreview: updateDropPreview,
-                        childSize: itemSize,
-                        columns: widget.columns,
-                        panel: Panel.lower,
+                      height: constraints.maxHeight,
+                      child: CanvaNavigationRailExample(),
+                      // child: CustomNavigationRail(
+                      //   selectedIndex: navSelectedIndex,
+                      //   isExtend: false,
+                      //   label: ["Home", "Pages", "More"],
+                      //   icons: [Icons.home, Icons.file_copy, Icons.more],
+                      //   backgroundColor: Colors.pink.shade100,
+                      //   onDestinationSelected: (value) {
+                      //     setState(() {
+                      //       navSelectedIndex = value;
+                      //       if (navSelectedIndex == 0) {
+                      //         Navigator.pop(context);
+                      //       }
+                      //     });
+                      //   },
+                      // ),
+                    ),
+                    Positioned(
+                      // for draggable component
+                      width: leftPanelWidth - 15,
+                      height: leftPanelheight - 2,
+                      left: navrailWidth - 30,
+                      top: 0,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(color: Color(0xFFF0F1F5)),
 
-                        child: ItemPanel(
-                          crossAxisCount: widget.columns,
-                          spacing: widget.itemSpacing,
-                          items: lower,
-                          onDragStart: onItemDragStart,
+                        child: MyDropRegion(
+                          onDrop: drop,
+                          updateDropPreview: updateDropPreview,
+                          childSize: itemSize,
+                          columns: widget.columns,
                           panel: Panel.lower,
-                          dragStart: dragStart,
-                          dropPreview: dropPreview,
-                          hoveringData: hoveringData,
+
+                          child: ItemPanel(
+                            width: leftPanelWidth - 20,
+                            crossAxisCount: widget.columns,
+                            spacing: widget.itemSpacing,
+                            items: lower,
+                            onDragStart: onItemDragStart,
+                            panel: Panel.lower,
+                            dragStart: dragStart,
+                            dropPreview: dropPreview,
+                            hoveringData: hoveringData,
+                          ),
                         ),
                       ),
                     ),
+
                     Positioned(
-                      width: 2,
-                      height: constraints.maxHeight,
-                      left: leftPanelWidth,
-                      child: ColoredBox(color: GlobalColors.centerPanelBGColor),
+                      width: leftPanelWidth - 20,
+                      height: leftPanelheight - 2,
+                      left: navrailWidth - 30,
+                      bottom: 0,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(color: Color(0xFFF0F1F5)),
+                        child: PageContainer(
+                          width: leftPanelWidth - 100,
+                          bpPageController: bpController,
+                        ),
+                      ),
                     ),
+                    // Positioned(
+                    //   width: 2,
+                    //   height: constraints.maxHeight,
+                    //   left: leftPanelWidth,
+                    //   child: ColoredBox(color: GlobalColors.centerPanelBGColor),
+                    // ),
                     Positioned(
                       // centerpanel for dragtarget
                       width: centerPanelWidth,
                       height: constraints.maxHeight,
-                      left: leftPanelWidth,
+                      left: leftPanelWidth + 50,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
                           color: GlobalColors.centerPanelBGColor,
@@ -302,6 +351,7 @@ class _SplitPanelState extends State<SplitPanel> {
                           columns: widget.columns,
                           panel: Panel.upper,
                           child: ItemPanel(
+                            width: leftPanelWidth - 100,
                             crossAxisCount: widget.columns,
                             spacing: widget.itemSpacing,
                             items: upper,
@@ -320,7 +370,7 @@ class _SplitPanelState extends State<SplitPanel> {
                       height: constraints.maxHeight,
                       right: 0,
                       child: DecoratedBox(
-                        decoration: BoxDecoration(color: Colors.pink.shade100),
+                        decoration: BoxDecoration(color: Color(0xFFF0F1F5)),
 
                         /// RightPanel - is parent model for props , action and
                         /// datasource panel

@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Navigation App',
       theme: ThemeData.light(),
-      home: SplitScreen(),
+      home: HomeScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
