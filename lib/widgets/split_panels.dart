@@ -7,8 +7,11 @@
 */
 import 'dart:math';
 
+import 'package:dashboard/appdata/inboxjson.dart';
 import 'package:dashboard/appdata/page/page_global_constants.dart';
 import 'package:dashboard/appstyles/global_colors.dart';
+import 'package:dashboard/bloc/bpinbox/bpwidget_inbox_props_bloc.dart';
+import 'package:dashboard/bloc/bpinbox/model/bpwiddgetinboxprops.dart';
 import 'package:dashboard/bloc/bpwidgetaction/model/action/bpwidget_action.dart';
 import 'package:dashboard/bloc/bpwidgetprops/bpwidget_props_bloc.dart';
 import 'package:dashboard/bloc/bpwidgetprops/model/bpwidget_props.dart';
@@ -19,12 +22,16 @@ import 'package:dashboard/bloc/bpwidgets/page_container.dart';
 import 'package:dashboard/pages/canva_nav_rail.dart';
 import 'package:dashboard/pages/dynamic_form_builder.dart';
 import 'package:dashboard/types/drag_drop_types.dart';
+import 'package:dashboard/types/global_types.dart';
 import 'package:dashboard/utils/math_utils.dart';
 import 'package:dashboard/widgets/custom_navigation_rail.dart';
 import 'package:dashboard/widgets/item_panel.dart';
+import 'package:dashboard/widgets/lead_tile_card-shimmer.dart';
+import 'package:dashboard/widgets/lead_tile_card.dart';
 import 'package:dashboard/widgets/mobile_screen.dart';
 import 'package:dashboard/widgets/my_drop_region.dart';
 import 'package:dashboard/widgets/right_panel.dart';
+import 'package:dashboard/widgets/rightpanels/inboxrightpanel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -46,7 +53,9 @@ class _SplitPanelState extends State<SplitPanel> {
   BPPageController bpController = BPPageController.loadNPages(5);
 
   ///
+  bool inboxWidget = true;
   List<BPWidget> upper = [];
+  List<Map<String,dynamic>>? inboxList = [];
   final List<BPWidget> lower = [
     BPWidget(
       bpwidgetProps: BpwidgetProps(
@@ -106,6 +115,14 @@ class _SplitPanelState extends State<SplitPanel> {
 
   int navSelectedIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    if (inboxWidget) {
+      listdrop();
+    }
+  }
+
   /// this method is called when the itemplaceholder is dragged
   /// it's set  the state -> dragStart and data state properties
   ///
@@ -156,6 +173,29 @@ class _SplitPanelState extends State<SplitPanel> {
     });
   }
 
+  void listdrop() {
+    setState(() {
+      final uniqueID = MathUtils.generateUniqueID();
+      final listhoveringData = BPWidget(
+        id: uniqueID,
+        bpwidgetProps: BPWidgetInboxProps(
+          id: uniqueID,
+          title: '', 
+          subtitle: '', 
+          key1: '', 
+          key2: '', 
+          key3: ''
+        ),
+        bpwidgetAction: [
+          BpwidgetAction.initWithId(id: uniqueID),
+        ], // list of formcontrolactions
+      );
+
+      print('hoveringData => ${listhoveringData.id}');
+      upper.insert(0, listhoveringData);
+    });
+  }
+
   void onItemClickRef(BPWidget widget) {
     print('onItemClickRef => ${widget}');
     selectedWidgetProps = widget;
@@ -163,7 +203,7 @@ class _SplitPanelState extends State<SplitPanel> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    
     return BlocConsumer<BpwidgetBloc, BpwidgetState>(
       /// listener method will be invoked when ever the BPWidgetState objet
       /// changes . in our case whenever we are adding the Bpwidgets in
@@ -172,43 +212,61 @@ class _SplitPanelState extends State<SplitPanel> {
         print(
           'inside splitpanel builder method => ${state.bpWidgetsList?.length} ${state.bpWidgetsList![0].bpwidgetProps}',
         );
-
-        final upperFiltered = upper.where((u) {
-          return u.id == state.bpWidgetsList![0].bpwidgetProps!.id;
-        });
-        final indexOfSelectedBpWidget = upper.indexOf(upperFiltered.first);
-        if (indexOfSelectedBpWidget != -1) {
-          BPWidget _upper = upperFiltered.first;
-
-          _upper.bpwidgetProps = _upper.bpwidgetProps!.copyWith(
-            controlName: state.bpWidgetsList![0].bpwidgetProps!.controlName,
-            label: state.bpWidgetsList![0].bpwidgetProps!.label,
-            controlType: state.bpWidgetsList![0].bpwidgetProps!.controlType,
-            isRequired: state.bpWidgetsList![0].bpwidgetProps!.isRequired,
-            isVerificationRequired:
-                state.bpWidgetsList![0].bpwidgetProps!.isVerificationRequired,
-            max: state.bpWidgetsList![0].bpwidgetProps!.max,
-            min: state.bpWidgetsList![0].bpwidgetProps!.min,
-            validationPatterns:
-                state.bpWidgetsList![0].bpwidgetProps!.validationPatterns,
-            id: state.bpWidgetsList![0].bpwidgetProps!.id,
+    
+        if (inboxWidget) {
+          final bpWidgetStateProps =  state.bpWidgetsList![0].bpwidgetProps! as BPWidgetInboxProps;
+          BPWidget inboxProps;
+          inboxProps = BPWidget(
+            bpwidgetProps: bpWidgetStateProps
           );
-          if (state.bpWidgetsList![0].bpwidgetAction == null) {
-            _upper.bpwidgetAction = [BpwidgetAction.initWithId(id: '')];
-          } else {
-            _upper.bpwidgetAction = state.bpWidgetsList![0].bpwidgetAction;
-          }
+          print("inboxProps $inboxProps");
+          upper.insert(0, inboxProps);
+          print("upper-bpWidgetStateProps $upper");
 
-          // _upper.copyWith(bpwidgetProps: state.bpWidgetsList![0].bpwidgetProps);
-          upper[indexOfSelectedBpWidget] = _upper;
-          print(upper[0].bpwidgetProps!.label);
+          final jsonList = context.read<BpwidgetInboxPropsBloc>().state.jsonListData;
+          inboxList = jsonList!['responseData']['leadlists'] ?? [];
+          print("final inboxList => $inboxList");
+        } else {
+          final bpWidgetStateProps =  state.bpWidgetsList![0].bpwidgetProps! as BpwidgetProps;
+          final upperFiltered = upper.where((u) {
+            return u.id == bpWidgetStateProps.id;
+          });
+          final indexOfSelectedBpWidget = upper.indexOf(upperFiltered.first);
+          if (indexOfSelectedBpWidget != -1) {
+            BPWidget _upper = upperFiltered.first;
+            final upperWidget = _upper.bpwidgetProps! as BpwidgetProps;
+    
+            _upper.bpwidgetProps =  upperWidget.copyWith(
+              controlName: bpWidgetStateProps.controlName,
+              label: bpWidgetStateProps.label,
+              controlType: bpWidgetStateProps.controlType,
+              isRequired: bpWidgetStateProps.isRequired,
+              isVerificationRequired:
+                  bpWidgetStateProps.isVerificationRequired,
+              max: bpWidgetStateProps.max,
+              min: bpWidgetStateProps.min,
+              validationPatterns:
+                  bpWidgetStateProps.validationPatterns,
+              id: bpWidgetStateProps.id,
+            );
+            if (state.bpWidgetsList![0].bpwidgetAction == null) {
+              _upper.bpwidgetAction = [BpwidgetAction.initWithId(id: '')];
+            } else {
+              _upper.bpwidgetAction = state.bpWidgetsList![0].bpwidgetAction;
+            }
+    
+            // _upper.copyWith(bpwidgetProps: state.bpWidgetsList![0].bpwidgetProps);
+            upper[indexOfSelectedBpWidget] = _upper;
+          }
         }
+    
+        
       },
       builder: (context, state) {
         print(
           'total pages => ${bpController.pagesRegistry.entries.first.value.pageName}',
         );
-
+        print("inboxList latest => $inboxList");
         return Scaffold(
           appBar: AppBar(
             title: Text('BuildPerfect'),
@@ -219,19 +277,19 @@ class _SplitPanelState extends State<SplitPanel> {
                   // upper.asMap().entries.map((e) {
                   //   print(e.value.toJson());
                   // });
-
+    
                   // for (int i = 0; i < upper.length; i++) {
                   //   print(upper[i].toJson());
                   // }
-
+    
                   final schema = BpwidgetSchema(schema: upper);
                   final schemaJson = schema.toJson();
                   final schemaWidget = BpwidgetSchema.fromJson(schemaJson);
                   print('schema => $schemaJson');
-                  print(
-                    'widget =>${schemaWidget.schema[0].bpwidgetProps!.controlName}',
-                  );
-
+                  // print(
+                  //   'widget =>${schemaWidget.schema[0].bpwidgetProps!.controlName}',
+                  // );
+    
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -260,6 +318,8 @@ class _SplitPanelState extends State<SplitPanel> {
                   (leftPanelWidth + centerPanelWidth) +
                   80;
               final leftPanelheight = constraints.maxHeight / 2;
+              BPWidgetInboxProps inboxProps = upper[0].bpwidgetProps as BPWidgetInboxProps;
+              bool cardRender = inboxProps.title == '' ? true : false;
               return Padding(
                 padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
                 child: Stack(
@@ -287,20 +347,20 @@ class _SplitPanelState extends State<SplitPanel> {
                     ),
                     Positioned(
                       // for draggable component
-                      width: leftPanelWidth - 15,
+                      width: leftPanelWidth - 20,
                       height: leftPanelheight - 2,
                       left: navrailWidth - 30,
                       top: 0,
                       child: DecoratedBox(
                         decoration: BoxDecoration(color: Color(0xFFF0F1F5)),
-
+    
                         child: MyDropRegion(
                           onDrop: drop,
                           updateDropPreview: updateDropPreview,
                           childSize: itemSize,
                           columns: widget.columns,
                           panel: Panel.lower,
-
+    
                           child: ItemPanel(
                             width: leftPanelWidth - 20,
                             crossAxisCount: widget.columns,
@@ -315,7 +375,7 @@ class _SplitPanelState extends State<SplitPanel> {
                         ),
                       ),
                     ),
-
+    
                     Positioned(
                       width: leftPanelWidth - 20,
                       height: leftPanelheight - 2,
@@ -340,11 +400,48 @@ class _SplitPanelState extends State<SplitPanel> {
                       width: centerPanelWidth,
                       height: constraints.maxHeight,
                       left: leftPanelWidth + 50,
+                      // right: rightPanelWidth,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
                           color: GlobalColors.centerPanelBGColor,
                         ),
-                        child: MyDropRegion(
+                        child: inboxWidget ? Container(
+                          padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
+                          width: 20,
+                          child: cardRender ? 
+                            ListView.builder(
+                              itemCount: 1,
+                              itemBuilder: (context, index) {
+                                return LeadTileCard(
+                                  title: 'title',
+                                  subtitle: 'subtitle',
+                                  icon: Icons.person,
+                                  color: Colors.teal,
+                                  phone: 'key3',
+                                  createdon: 'key4',
+                                  location: 'key5',
+                                  loanamount: '12345',
+                                );
+                              },
+                            ) : 
+                            ListView.builder(
+                              itemCount: inboxList!.length,
+                              itemBuilder: (context, index) {
+                                final cardkeys = upper[0].bpwidgetProps as BPWidgetInboxProps;
+                                final lead = inboxList![index];
+                                return LeadTileCard(
+                                  title: lead['${cardkeys.title}'],
+                                  subtitle: lead['${cardkeys.subtitle}'],
+                                  icon: Icons.person,
+                                  color: Colors.teal,
+                                  phone: lead['${cardkeys.key1}'],
+                                  createdon: lead['${cardkeys.key2}'],
+                                  location: lead['${cardkeys.key3}'],
+                                  loanamount: '25850',
+                                );
+                              },
+                            ),
+                        ) : MyDropRegion(
                           onDrop: drop,
                           updateDropPreview: updateDropPreview,
                           childSize: itemSize,
@@ -371,14 +468,20 @@ class _SplitPanelState extends State<SplitPanel> {
                       right: 0,
                       child: DecoratedBox(
                         decoration: BoxDecoration(color: Color(0xFFF0F1F5)),
-
+    
                         /// RightPanel - is parent model for props , action and
                         /// datasource panel
-                        child: RightPanel(
-                          width: rightPanelWidth,
-                          height: constraints.maxHeight,
-                          props: selectedWidgetProps,
-                        ),
+                        child: inboxWidget ? 
+                          InboxRightPanel(
+                            width: rightPanelWidth,
+                            height: constraints.maxHeight,
+                            props: selectedWidgetProps,
+                          ) :
+                          RightPanel(
+                            width: rightPanelWidth,
+                            height: constraints.maxHeight,
+                            props: selectedWidgetProps,
+                          ),
                       ),
                     ),
                   ],

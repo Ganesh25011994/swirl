@@ -75,6 +75,7 @@ class _ItemsPanelState extends State<ItemPanel> {
     int index = 0,
   }) {
     print('BpwidgetProps props => $props ');
+    final BpwidgetProps bpWidgetProps = props.bpwidgetProps! as BpwidgetProps;
     return switch (controlName) {
       PlaceholderWidgets.Textfield => DraggedHolder(
         onTapDraggedControl: () {
@@ -89,9 +90,9 @@ class _ItemsPanelState extends State<ItemPanel> {
           setState(() {});
         },
         labelText:
-            props.bpwidgetProps!.label.isEmpty
+            bpWidgetProps.label.isEmpty
                 ? 'label ${index + 1}'
-                : props.bpwidgetProps!.label,
+                : bpWidgetProps.label,
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
@@ -144,9 +145,9 @@ class _ItemsPanelState extends State<ItemPanel> {
           setState(() {});
         },
         labelText:
-            props.bpwidgetProps!.label.isEmpty
+            bpWidgetProps.label.isEmpty
                 ? 'label ${index + 1}'
-                : props.bpwidgetProps!.label,
+                : bpWidgetProps.label,
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
@@ -200,9 +201,9 @@ class _ItemsPanelState extends State<ItemPanel> {
         },
 
         labelText:
-            props.bpwidgetProps!.label.isEmpty
+            bpWidgetProps.label.isEmpty
                 ? 'label ${index + 1}'
-                : props.bpwidgetProps!.label,
+                : bpWidgetProps.label,
 
         child: DecoratedBox(
           decoration: BoxDecoration(
@@ -300,9 +301,9 @@ class _ItemsPanelState extends State<ItemPanel> {
       ),
       PlaceholderWidgets.Button => DraggedHolder(
         labelText:
-            props.bpwidgetProps!.label.isEmpty
+            bpWidgetProps.label.isEmpty
                 ? 'label ${index + 1}'
-                : props.bpwidgetProps!.label,
+                : bpWidgetProps.label,
 
         onTapDraggedControl: () {
           selectedIndex = index;

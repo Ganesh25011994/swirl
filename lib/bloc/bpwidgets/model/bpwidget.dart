@@ -1,5 +1,6 @@
 import 'dart:convert';
-
+import 'package:dashboard/bloc/bpinbox/model/bpwiddgetinboxprops.dart';
+import 'package:dashboard/bloc/bpwidgets/model/bp_props.dart';
 import 'package:flutter/foundation.dart';
 
 /*
@@ -14,7 +15,7 @@ import 'package:dashboard/types/drag_drop_types.dart';
 class BPWidget {
   final PlaceholderWidgets? widgetType;
   final String? id;
-  BpwidgetProps? bpwidgetProps;
+  BpProps? bpwidgetProps;
   List<BpwidgetAction>? bpwidgetAction;
   BPWidget({this.widgetType, this.id, this.bpwidgetProps, this.bpwidgetAction});
 

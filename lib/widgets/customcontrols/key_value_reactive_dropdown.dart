@@ -11,7 +11,7 @@ import 'package:reactive_forms/reactive_forms.dart';
 class KeyValueReactiveDropdown extends StatefulWidget {
   final double width;
   final String labeltext;
-  final List<dynamic> dropdownEntries;
+  final List<String> dropdownEntries;
   final dynamic initialSelection;
   final ValueChanged? onSelected;
   final String formControlName;
@@ -32,10 +32,10 @@ class KeyValueReactiveDropdown extends StatefulWidget {
 class _KeyValueDropdownState extends State<KeyValueReactiveDropdown> {
   late final List<DropdownMenuItem> dropdownItems;
 
-  @override
-  void initState() {
-    dropdownItems = renderDropDownItems();
-  }
+  // @override
+  // void initState() {
+  //   dropdownItems = renderDropDownItems();
+  // }
 
   List<DropdownMenuItem> renderDropDownItems() {
     return List.from(widget.dropdownEntries).asMap().entries.map((e) {
@@ -48,6 +48,7 @@ class _KeyValueDropdownState extends State<KeyValueReactiveDropdown> {
 
   @override
   Widget build(BuildContext context) {
+    final dropdownItems = renderDropDownItems();
     return Row(
       children: [
         Padding(
