@@ -8,6 +8,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:dashboard/appstyles/global_styles.dart';
+import 'package:dashboard/bloc/bpwidgetInboxprops/bpwidget_inbox_prosp.dart';
 import 'package:dashboard/bloc/bpwidgetprops/model/bpwidget_props.dart';
 import 'package:dashboard/bloc/bpwidgets/model/bpwidget.dart';
 import 'package:dashboard/types/drag_drop_types.dart';
@@ -337,6 +338,62 @@ class _ItemsPanelState extends State<ItemPanel> {
         ),
       ),
       PlaceholderWidgets.Label => Text('label ${index + 1}'),
+      PlaceholderWidgets.inbox => DraggedHolder(
+        onTapDraggedControl: () {
+          /// when draggedholder is selected , selected formcontrol
+          /// label and other properties should be autopopulate
+          /// props panel
+          ///
+          selectedIndex = index;
+
+          // BpwidgetProps bpWidgetPropsObj = props.bpwidgetProps!;
+          widget.onItemClicked!(props);
+          setState(() {});
+        },
+        labelText: 'apiName',
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border:
+                selectedIndex == index
+                    ? Border.all(width: 2, color: Colors.teal)
+                    : Border.all(width: 2, color: Colors.transparent),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              SizedBox(
+                width: 300,
+                child: TextField(
+                  enabled:
+                      false, // enabled: selectedIndex == index ? true : false,
+                  decoration: InputDecoration(
+                    hintText: 'InboxCard',
+                    label: Text('TextField'),
+                    floatingLabelStyle: TextStyle(fontSize: 14),
+                  ),
+                ),
+              ),
+              selectedIndex == index
+                  ? Row(
+                    children: [
+                      GlobalStyles.selectedIcon,
+                      SizedBox(width: 5),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            itemsCopy.removeAt(selectedIndex);
+                          });
+                        },
+                        icon: GlobalStyles.deleteIcon,
+                      ),
+                    ],
+                  )
+                  : GlobalStyles.fillerSizedBox50,
+            ],
+          ),
+        ),
+      ),
     };
   }
 
