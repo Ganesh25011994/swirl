@@ -45,18 +45,21 @@ class BPWidget {
     };
   }
 
-  factory BPWidget.fromMap(Map<String, dynamic> map) {
+  factory BPWidget.fromMap(Map<String, dynamic> map, inbox) {
     return BPWidget(
-      widgetType: PlaceholderWidgets.values.firstWhere(
+      widgetType: map['widgetType'] != null ?PlaceholderWidgets.values.firstWhere(
         (e) => e.name == map['widgetType'],
-      ),
-      id: map['id'] != null ? map['id'] as String : null,
-      bpwidgetProps:
+      ) : null,
+      id: map['id'] != null ? map['id'] as String : '',
+      bpwidgetProps: inbox ? (
+          map['bpwidgetProps'] != null 
+              ? BPWidgetInboxProps.fromMap(
+                  map['bpwidgetProps'] as Map<String,dynamic>) : null
+        ) :
           map['bpwidgetProps'] != null
               ? BpwidgetProps.fromMap(
                 map['bpwidgetProps'] as Map<String, dynamic>,
-              )
-              : null,
+              ) : null,
       bpwidgetAction:
           map['bpwidgetAction'] != null
               ? List<BpwidgetAction>.from(
@@ -70,8 +73,8 @@ class BPWidget {
 
   String toJson() => json.encode(toMap());
 
-  factory BPWidget.fromJson(String source) =>
-      BPWidget.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory BPWidget.fromJson(String source, inbox) =>
+      BPWidget.fromMap(json.decode(source) as Map<String, dynamic>, inbox);
 
   @override
   String toString() {

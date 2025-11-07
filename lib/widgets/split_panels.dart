@@ -7,13 +7,11 @@
 */
 import 'dart:math';
 
-import 'package:dashboard/appdata/inboxjson.dart';
 import 'package:dashboard/appdata/page/page_global_constants.dart';
 import 'package:dashboard/appstyles/global_colors.dart';
 import 'package:dashboard/bloc/bpinbox/bpwidget_inbox_props_bloc.dart';
 import 'package:dashboard/bloc/bpinbox/model/bpwiddgetinboxprops.dart';
 import 'package:dashboard/bloc/bpwidgetaction/model/action/bpwidget_action.dart';
-import 'package:dashboard/bloc/bpwidgetprops/bpwidget_props_bloc.dart';
 import 'package:dashboard/bloc/bpwidgetprops/model/bpwidget_props.dart';
 import 'package:dashboard/bloc/bpwidgets/bpwidget_bloc.dart';
 import 'package:dashboard/bloc/bpwidgets/model/bpwidget.dart';
@@ -26,7 +24,6 @@ import 'package:dashboard/types/global_types.dart';
 import 'package:dashboard/utils/math_utils.dart';
 import 'package:dashboard/widgets/custom_navigation_rail.dart';
 import 'package:dashboard/widgets/item_panel.dart';
-import 'package:dashboard/widgets/lead_tile_card-shimmer.dart';
 import 'package:dashboard/widgets/lead_tile_card.dart';
 import 'package:dashboard/widgets/mobile_screen.dart';
 import 'package:dashboard/widgets/my_drop_region.dart';
@@ -53,7 +50,7 @@ class _SplitPanelState extends State<SplitPanel> {
   BPPageController bpController = BPPageController.loadNPages(5);
 
   ///
-  bool inboxWidget = true;
+  bool inboxWidget = false;
   List<BPWidget> upper = [];
   List<Map<String,dynamic>>? inboxList = [];
   final List<BPWidget> lower = [
@@ -193,6 +190,7 @@ class _SplitPanelState extends State<SplitPanel> {
 
       print('hoveringData => ${listhoveringData.id}');
       upper.insert(0, listhoveringData);
+      onItemClickRef(upper[0]);
     });
   }
 
@@ -200,6 +198,20 @@ class _SplitPanelState extends State<SplitPanel> {
     print('onItemClickRef => ${widget}');
     selectedWidgetProps = widget;
     setState(() {});
+  }
+
+  checkCardRender() {
+    try {
+      if (inboxWidget) {
+        BPWidgetInboxProps inboxProps = upper[0].bpwidgetProps as BPWidgetInboxProps;
+        bool cardRender = inboxProps.title == '' ? true : false;
+        return cardRender;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      return false;
+    }
   }
 
   @override
@@ -215,17 +227,27 @@ class _SplitPanelState extends State<SplitPanel> {
     
         if (inboxWidget) {
           final bpWidgetStateProps =  state.bpWidgetsList![0].bpwidgetProps! as BPWidgetInboxProps;
-          BPWidget inboxProps;
-          inboxProps = BPWidget(
-            bpwidgetProps: bpWidgetStateProps
+          BPWidget _upper = upper.first;
+          final upperWidget = _upper.bpwidgetProps! as BPWidgetInboxProps;
+            _upper.bpwidgetProps =  upperWidget.copyWith(
+            id: upperWidget.id,
+            apiName: bpWidgetStateProps.apiName,
+            title: bpWidgetStateProps.title,
+            subtitle: bpWidgetStateProps.subtitle,
+            key1: bpWidgetStateProps.key1,
+            key2: bpWidgetStateProps.key2,
+            key3: bpWidgetStateProps.key3,
           );
-          print("inboxProps $inboxProps");
-          upper.insert(0, inboxProps);
-          print("upper-bpWidgetStateProps $upper");
 
+          if (state.bpWidgetsList![0].bpwidgetAction == null) {
+            _upper.bpwidgetAction = [BpwidgetAction.initWithId(id: '')];
+          } else {
+            _upper.bpwidgetAction = state.bpWidgetsList![0].bpwidgetAction;
+          }
+          // _upper.copyWith(bpwidgetProps: state.bpWidgetsList![0].bpwidgetProps);
+          upper.first = _upper;
           final jsonList = context.read<BpwidgetInboxPropsBloc>().state.jsonListData;
           inboxList = jsonList!['responseData']['leadlists'] ?? [];
-          print("final inboxList => $inboxList");
         } else {
           final bpWidgetStateProps =  state.bpWidgetsList![0].bpwidgetProps! as BpwidgetProps;
           final upperFiltered = upper.where((u) {
@@ -259,8 +281,6 @@ class _SplitPanelState extends State<SplitPanel> {
             upper[indexOfSelectedBpWidget] = _upper;
           }
         }
-    
-        
       },
       builder: (context, state) {
         print(
@@ -284,7 +304,7 @@ class _SplitPanelState extends State<SplitPanel> {
     
                   final schema = BpwidgetSchema(schema: upper);
                   final schemaJson = schema.toJson();
-                  final schemaWidget = BpwidgetSchema.fromJson(schemaJson);
+                  final schemaWidget = BpwidgetSchema.fromJson(schemaJson, inboxWidget);
                   print('schema => $schemaJson');
                   // print(
                   //   'widget =>${schemaWidget.schema[0].bpwidgetProps!.controlName}',
@@ -318,8 +338,7 @@ class _SplitPanelState extends State<SplitPanel> {
                   (leftPanelWidth + centerPanelWidth) +
                   80;
               final leftPanelheight = constraints.maxHeight / 2;
-              BPWidgetInboxProps inboxProps = upper[0].bpwidgetProps as BPWidgetInboxProps;
-              bool cardRender = inboxProps.title == '' ? true : false;
+              bool cardRender = checkCardRender();
               return Padding(
                 padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
                 child: Stack(

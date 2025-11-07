@@ -60,19 +60,7 @@ class _InboxPropsPanelState extends State<InboxPropsPanel> {
         }
       },
       builder: (context, state) {
-        // print('PropsPanel => ${widget.props}');
-        if (widget.props != null) {
-          final BPWidgetInboxProps? bpWidgetInboxProps = widget.props!.bpwidgetProps as BPWidgetInboxProps;
-          bpWidgetInboxPropsForm.controls['title']?.updateValue(
-            bpWidgetInboxProps!.title
-          );
-          bpWidgetInboxPropsForm.controls['subtitle']?.updateValue(
-            bpWidgetInboxProps!.subtitle,
-          );
-        }
-
         List<String>? keyListData = state.keyList!.isNotEmpty ? state.keyList : [];
-        
         
         return ReactiveForm(
           formGroup: bpWidgetInboxPropsForm,

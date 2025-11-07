@@ -17,11 +17,11 @@ class BpwidgetSchema {
     return <String, dynamic>{'schema': schema.map((x) => x.toMap()).toList()};
   }
 
-  factory BpwidgetSchema.fromMap(Map<String, dynamic> map) {
+  factory BpwidgetSchema.fromMap(Map<String, dynamic> map, inbox) {
     return BpwidgetSchema(
       schema: List<BPWidget>.from(
         (map['schema'] as List<dynamic>).map<BPWidget>(
-          (x) => BPWidget.fromMap(x as Map<String, dynamic>),
+          (x) => BPWidget.fromMap(x as Map<String, dynamic>, inbox),
         ),
       ),
     );
@@ -29,8 +29,8 @@ class BpwidgetSchema {
 
   String toJson() => json.encode(toMap());
 
-  factory BpwidgetSchema.fromJson(String source) =>
-      BpwidgetSchema.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory BpwidgetSchema.fromJson(String source, inbox) =>
+      BpwidgetSchema.fromMap(json.decode(source) as Map<String, dynamic>, inbox);
 
   @override
   String toString() => 'BpwidgetSchema(schema: $schema)';
