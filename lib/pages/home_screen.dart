@@ -31,32 +31,32 @@ class _HomeScreenState extends State<HomeScreen> {
   int navSelectedIndex = 0;
   List<Map<String, dynamic>> myProjects = [
     {
-      "icon": Icons.ac_unit,
+      "icon": Icons.bike_scooter,
       "projectName": "Vehicle Loan",
       "projectId": 00000000018,
       "createdOn": "22/10/2025",
     },
     {
-      "icon": Icons.ac_unit,
+      "icon": Icons.agriculture,
       "projectName": "Agriculture Loan",
       "projectId": 00000000019,
       "createdOn": "18/10/2025",
     },
     {
-      "icon": Icons.ac_unit,
+      "icon": Icons.diamond,
       "projectName": "Gold Loan",
       "projectId": 00000000020,
       "createdOn": "12/10/2025",
     },
     {
-      "icon": Icons.ac_unit,
+      "icon": Icons.home,
       "projectName": "Housing Loan",
       "projectId": 00000000021,
       "createdOn": "01/10/2025",
     },
     {
-      "icon": Icons.ac_unit,
-      "projectName": "MLAP",
+      "icon": Icons.factory,
+      "projectName": "MSME",
       "projectId": 00000000022,
       "createdOn": "02/09/2025",
     },
@@ -130,7 +130,10 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Icon(Icons.account_tree, color: GlobalColors.iconColorWhite),
             SizedBox(width: 10),
-            Text("BUILD IT", style: GlobalColors.titleTextStyleWhite),
+            Text(
+              "BUILD PERFECT",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             SizedBox(width: 10),
             SearchBarWidget(hintText: "Search here"),
             SizedBox(
