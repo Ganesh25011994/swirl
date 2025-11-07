@@ -7,6 +7,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:dashboard/appdata/page/bppage_schema.dart';
 import 'package:dashboard/appstyles/global_styles.dart';
 import 'package:dashboard/bloc/bpwidgetprops/model/bpwidget_props.dart';
 import 'package:dashboard/bloc/bpwidgets/model/bpwidget.dart';
@@ -30,6 +31,7 @@ class ItemPanel extends StatefulWidget {
   final PanelLocation? dropPreview;
   final BPWidget? hoveringData;
   final Function(BPWidget item)? onItemClicked;
+  
   const ItemPanel({
     super.key,
     required this.width,
@@ -42,6 +44,7 @@ class ItemPanel extends StatefulWidget {
     required this.dropPreview,
     required this.hoveringData,
     this.onItemClicked,
+    
   });
 
   @override
@@ -370,6 +373,7 @@ class _ItemsPanelState extends State<ItemPanel> {
 
     final itemsCopy = List<BPWidget>.from(widget.items);
     if (widget.panel == Panel.upper) {
+
       return ListView(
         padding: const EdgeInsets.only(top: 4, left: 0, right: 70),
         children:

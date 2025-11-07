@@ -8,6 +8,7 @@
 
 */
 
+import 'package:dashboard/appdata/page/bppage_schema.dart';
 import 'package:dashboard/bloc/bpwidgetaction/bloc/bpwidget_action_bloc.dart';
 import 'package:dashboard/bloc/bpwidgetprops/bpwidget_props_bloc.dart';
 import 'package:dashboard/bloc/bpwidgets/bpwidget_bloc.dart';
@@ -16,12 +17,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SplitScreen extends StatefulWidget {
-  const SplitScreen({super.key});
+  final List<BpPagesSchema> pagesSchema;
+  const SplitScreen({super.key, required this.pagesSchema});
   @override
   State<SplitScreen> createState() => _SplitScreenState();
+
 }
 
 class _SplitScreenState extends State<SplitScreen> {
+
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print("splite Sreen---------->${widget.pagesSchema}");
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -30,7 +41,7 @@ class _SplitScreenState extends State<SplitScreen> {
         BlocProvider(create: (context) => BpwidgetBloc(), lazy: false),
         BlocProvider(create: (context) => BpwidgetActionBloc(), lazy: false),
       ],
-      child: Scaffold(body: SplitPanel()),
+      child: Scaffold(body: SplitPanel(pagesData:widget.pagesSchema)),
     );
   }
 }
