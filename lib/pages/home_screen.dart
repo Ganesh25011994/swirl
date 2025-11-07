@@ -7,8 +7,7 @@ import 'package:dashboard/widgets/split_panels.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen(
-    {super.key});
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -18,32 +17,32 @@ class _HomeScreenState extends State<HomeScreen> {
   int navSelectedIndex = 0;
   List<Map<String, dynamic>> myProjects = [
     {
-      "icon": Icons.ac_unit,
+      "icon": Icons.bike_scooter,
       "projectName": "Vehicle Loan",
       "projectId": 00000000018,
       "createdOn": "22/10/2025",
     },
     {
-      "icon": Icons.ac_unit,
+      "icon": Icons.agriculture,
       "projectName": "Agriculture Loan",
       "projectId": 00000000019,
       "createdOn": "18/10/2025",
     },
     {
-      "icon": Icons.ac_unit,
+      "icon": Icons.diamond,
       "projectName": "Gold Loan",
       "projectId": 00000000020,
       "createdOn": "12/10/2025",
     },
     {
-      "icon": Icons.ac_unit,
+      "icon": Icons.home,
       "projectName": "Housing Loan",
       "projectId": 00000000021,
       "createdOn": "01/10/2025",
     },
     {
-      "icon": Icons.ac_unit,
-      "projectName": "MLAP",
+      "icon": Icons.factory,
+      "projectName": "MSME",
       "projectId": 00000000022,
       "createdOn": "02/09/2025",
     },
@@ -51,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget getContentWidget(int index) {
     switch (index) {
       case 0:
-        return MyProjects(cardData: myProjects,);
+        return MyProjects(cardData: myProjects);
     }
     return Text("No Project created Yet!");
   }
@@ -74,7 +73,10 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Icon(Icons.account_tree),
             SizedBox(width: 10),
-            Text("BUILD IT", style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              "BUILD PERFECT",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             SizedBox(width: 10),
             SearchBarWidget(hintText: "Search here"),
             SizedBox(
@@ -130,8 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (value == 3) {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => MyWidget()),
+                      MaterialPageRoute(builder: (context) => MyWidget()),
                     );
                   }
                 },
