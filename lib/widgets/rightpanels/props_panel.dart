@@ -41,6 +41,7 @@ class _PropsPanelState extends State<PropsPanel> {
 
   @override
   Widget build(BuildContext context) {
+    
     return BlocConsumer<BpwidgetPropsBloc, BpwidgetPropsState>(
       listener: (context, state) {
         if (state.saveStatus == SaveStatus.saved) {
@@ -56,6 +57,7 @@ class _PropsPanelState extends State<PropsPanel> {
       },
       builder: (context, state) {
         // print('PropsPanel => ${widget.props}');
+        final BpwidgetProps? widgetProps = widget.props != null ? widget.props!.bpwidgetProps! as BpwidgetProps : null;
         
         if (widget.props != null) {
           final BpwidgetProps? bpWidgetProps = widget.props!.bpwidgetProps! as BpwidgetProps;
@@ -107,9 +109,9 @@ class _PropsPanelState extends State<PropsPanel> {
                       formControlName: 'label',
                       onChange: (val) {
                         bpWidgetPropsForm.controls['controlName']!.value =
-                            '';
+                            widgetProps!.controlName;
                         bpWidgetPropsForm.controls['controlName']!.patchValue(
-                          '${bpWidgetPropsForm.controls['controlName']!.value}${val.value}',
+                          ('${bpWidgetPropsForm.controls['controlName']!.value}${val.value}').replaceAll(' ', '').toLowerCase(),
                         );
                       },
                     ),
