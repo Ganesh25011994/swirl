@@ -39,11 +39,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dashboard/pages/canva_nav_rail.dart';
 
-
 class SplitPanel extends StatefulWidget {
   final int columns;
   final double itemSpacing;
-  final  List<BpPagesSchema> pagesData;
+  final List<BpPagesSchema> pagesData;
   const SplitPanel({
     super.key,
     this.columns = 3,
@@ -77,7 +76,7 @@ class _SplitPanelState extends State<SplitPanel> {
 
   ///
   late BpPagesSchema bpPagesSchema;
-  late List<BpPagesSchema> allPageData=widget.pagesData;
+  late List<BpPagesSchema> allPageData = widget.pagesData;
   List<BPWidget> upper = [];
   final List<BPWidget> lower = [
     BPWidget(
@@ -178,10 +177,10 @@ class _SplitPanelState extends State<SplitPanel> {
           id: uniqueID,
           bpwidgetProps: BpwidgetProps(
             label: '',
-            controlName:'${bpPagesSchema.pageName}_',
+            controlName: '${bpPagesSchema.pageName}_',
+
             // controlName:
             //     '${bpController.pagesRegistry.entries.first.value.pageName}_',
-
             controlType: hoveringData!.widgetType!.name,
             id: uniqueID,
           ),
@@ -314,29 +313,28 @@ class _SplitPanelState extends State<SplitPanel> {
             dio: ApiClient().getDio(),
             // url: "http://172.30.3.246:8000/api/savePageSchema/", //save pages
             // url: "http://172.30.3.246:8000/api/getPageSchemaById/", //get a page
-            url: "https://swirl-backend.vercel.app/api/getAllPagesSchema/", //get All pages
+            url:
+                "https://swirl-backend.vercel.app/api/getAllPagesSchema/", //get All pages
 
             method: "POST",
             request: req,
           ).callApi();
       print('response-------------->$response');
       final data =
-      response is String ? jsonDecode(response) : response.data ?? response;
-      if(allPageData!=null){
-        allPageData=[];
-      for(int i=0;i<data.length;i++){
-      final schemaString = data[i]['schema'];
-      final schemaDecoded = jsonDecode(schemaString);
-       final pagesData = BpPagesSchema.fromJson(
-        schemaDecoded['BpPagesSchema'][0],
-      );
-      allPageData.add(pagesData);
-      print(pagesData.pageName);
-      print("pagesData$i----------------->$pagesData");
+          response is String ? jsonDecode(response) : response.data ?? response;
+      if (allPageData != null) {
+        allPageData = [];
+        for (int i = 0; i < data.length; i++) {
+          final schemaString = data[i]['schema'];
+          final schemaDecoded = jsonDecode(schemaString);
+          final pagesData = BpPagesSchema.fromJson(
+            schemaDecoded['BpPagesSchema'][0],
+          );
+          allPageData.add(pagesData);
+          print(pagesData.pageName);
+          print("pagesData$i----------------->$pagesData");
+        }
       }
-      }
-     
-
 
       // print(pagesData!.pageName);
 
@@ -370,7 +368,7 @@ class _SplitPanelState extends State<SplitPanel> {
         print(
           'inside splitpanel builder method => ${state.bpWidgetsList?.length} ${state.bpWidgetsList![0].bpwidgetProps}',
         );
-        
+
         final upperFiltered = upper.where((u) {
           return u.id == state.bpWidgetsList![0].bpwidgetProps!.id;
         });
@@ -406,7 +404,7 @@ class _SplitPanelState extends State<SplitPanel> {
         print(
           'total pages => ${bpController.pagesRegistry.entries.first.value.pageName}',
         );
-        
+
         return Scaffold(
           appBar: AppBar(
             // toolbarTextStyle: TextStyle(color: Colors.white,fontWeight:FontWeight.w600),
@@ -432,11 +430,16 @@ class _SplitPanelState extends State<SplitPanel> {
                   );
 
                   final pageSaverequest = framPageRequestSave(bpPagesSchema);
-                  await callApi(pageSaverequest,"https://swirl-backend.vercel.app/api/savePageSchema/");
-                  
+                  await callApi(
+                    pageSaverequest,
+                    "https://swirl-backend.vercel.app/api/savePageSchema/",
+                  );
+
                   setState(() async {
                     await getCallApi();
-                    print("widget.pagesData insid save All--------->${widget.pagesData}");
+                    print(
+                      "widget.pagesData insid save All--------->${widget.pagesData}",
+                    );
                   });
                 },
                 icon: Icon(Icons.save),
@@ -486,9 +489,7 @@ class _SplitPanelState extends State<SplitPanel> {
                   (leftPanelWidth + centerPanelWidth) +
                   80;
               final leftPanelheight = constraints.maxHeight / 2;
-              return Padding(
-                padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
-                child: Stack(
+              return Stack(
                 children: [
                   Positioned(
                     width: navrailWidth,
@@ -515,12 +516,12 @@ class _SplitPanelState extends State<SplitPanel> {
                   ),
                   Positioned(
                     // for draggable component
-                      width: leftPanelWidth - 15,
-                      height: leftPanelheight - 2,
-                      left: navrailWidth - 30,
-                      top: 0,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(color: Color(0xFFF0F1F5)),
+                    width: leftPanelWidth - 10,
+                    height: leftPanelheight - 2,
+                    left: navrailWidth - 25,
+                    top: 0,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(color: Color(0xFFF0F1F5)),
                       child: MyDropRegion(
                         onDrop: drop,
                         updateDropPreview: updateDropPreview,
@@ -545,9 +546,9 @@ class _SplitPanelState extends State<SplitPanel> {
                   ),
 
                   Positioned(
-                    width: leftPanelWidth - 20,
+                    width: leftPanelWidth - 10,
                     height: leftPanelheight - 2,
-                    left: navrailWidth - 30,
+                    left: navrailWidth - 25,
                     bottom: 0,
                     child: DecoratedBox(
                       decoration: BoxDecoration(color: Color(0xFFF0F1F5)),
@@ -586,7 +587,7 @@ class _SplitPanelState extends State<SplitPanel> {
                           crossAxisCount: widget.columns,
                           spacing: widget.itemSpacing,
                           items: upper,
-                         
+
                           onDragStart: onItemDragStart,
                           panel: Panel.upper,
                           dragStart: dragStart,
@@ -614,8 +615,7 @@ class _SplitPanelState extends State<SplitPanel> {
                     ),
                   ),
                 ],
-              ),
-                  );
+              );
             },
           ),
         );

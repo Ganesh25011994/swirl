@@ -13,7 +13,7 @@ class KeyValueReactiveTextbox extends StatefulWidget {
   final String labeltext;
   final String formControlName;
   final ReactiveFormFieldCallback<String>? onChange;
-  KeyValueReactiveTextbox({
+  const KeyValueReactiveTextbox({
     super.key,
     required this.width,
     required this.labeltext,
