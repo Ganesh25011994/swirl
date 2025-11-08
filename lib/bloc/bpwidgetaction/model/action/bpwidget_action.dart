@@ -18,7 +18,7 @@ class BpwidgetAction {
   BpwidgetAction({required this.id, required this.name, required this.job});
 
   factory BpwidgetAction.initWithId({required String id}) => BpwidgetAction(
-    id: id,
+    id: id, 
     job: BPwidgetJob(
       type: '',
       id: id,
@@ -52,6 +52,7 @@ class BpwidgetAction {
     );
   }
 
+  // Map<String, dynamic> toJson() => toMap();
   String toJson() => json.encode(toMap());
 
   factory BpwidgetAction.fromJson(String source) =>
