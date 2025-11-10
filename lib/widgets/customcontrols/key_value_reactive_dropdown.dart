@@ -11,7 +11,7 @@ import 'package:reactive_forms/reactive_forms.dart';
 class KeyValueReactiveDropdown extends StatefulWidget {
   final double width;
   final String labeltext;
-  final List<dynamic> dropdownEntries;
+  final dynamic dropdownEntries;
   final dynamic initialSelection;
   final ValueChanged? onSelected;
   final String formControlName;
@@ -37,13 +37,31 @@ class _KeyValueDropdownState extends State<KeyValueReactiveDropdown> {
   //   dropdownItems = renderDropDownItems();
   // }
 
-  List<DropdownMenuItem> renderDropDownItems() {
+  List<DropdownMenuItem<String>> renderDropDownItems() {
+    final dropDownItems = widget.dropdownEntries;
+
+    if (dropDownItems is Map<String, Widget>) {
+      return dropDownItems.entries.map((entry) {
+        return DropdownMenuItem<String>(
+          value: entry.key,
+          child: Row(
+            children: [
+              entry.value,
+              SizedBox(width: 8),
+              Text(entry.key.toLowerCase(), style: TextStyle(fontSize: 12)),
+            ],
+          ),
+        );
+      }).toList();
+    }else if(dropDownItems is List){
     return List.from(widget.dropdownEntries).asMap().entries.map((e) {
       return DropdownMenuItem(
         value: e.value.toString().toLowerCase(),
         child: Text(e.value, style: TextStyle(fontSize: 12)),
       );
     }).toList();
+  }
+  return [];
   }
 
   @override

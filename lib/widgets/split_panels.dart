@@ -5,21 +5,30 @@
                   items_panel
                 
 */
+import 'dart:convert';
 import 'dart:math';
 
+import 'package:dashboard/appdata/page/bpappbar.dart';
+import 'package:dashboard/appdata/page/bppage_schema.dart';
 import 'package:dashboard/appdata/page/page_global_constants.dart';
 import 'package:dashboard/appstyles/global_colors.dart';
 import 'package:dashboard/bloc/bpinbox/bpwidget_inbox_props_bloc.dart';
 import 'package:dashboard/bloc/bpinbox/model/bpwiddgetinboxprops.dart';
 import 'package:dashboard/bloc/bpwidgetaction/model/action/bpwidget_action.dart';
+import 'package:dashboard/bloc/bpwidgetaction/model/dataprovider/navigation_task_param.dart';
+import 'package:dashboard/bloc/bpwidgetaction/model/jobs/bpwidget_job.dart';
+import 'package:dashboard/bloc/bpwidgetaction/model/tasks/navigation_task.dart';
 import 'package:dashboard/bloc/bpwidgetprops/bpwidget_props_bloc.dart';
 import 'package:dashboard/bloc/bpwidgetprops/model/bpwidget_props.dart';
 import 'package:dashboard/bloc/bpwidgets/bpwidget_bloc.dart';
 import 'package:dashboard/bloc/bpwidgets/model/bpwidget.dart';
 import 'package:dashboard/bloc/bpwidgets/model/bpwidget_schema.dart';
 import 'package:dashboard/bloc/bpwidgets/page_container.dart';
+import 'package:dashboard/core/api/api_call.dart';
+import 'package:dashboard/core/api/api_client.dart';
 import 'package:dashboard/pages/canva_nav_rail.dart';
 import 'package:dashboard/pages/dynamic_form_builder.dart';
+import 'package:dashboard/types/bpwidget_types.dart';
 import 'package:dashboard/types/drag_drop_types.dart';
 import 'package:dashboard/utils/math_utils.dart';
 import 'package:dashboard/widgets/custom_navigation_rail.dart';
@@ -27,13 +36,21 @@ import 'package:dashboard/widgets/item_panel.dart';
 import 'package:dashboard/widgets/mobile_screen.dart';
 import 'package:dashboard/widgets/my_drop_region.dart';
 import 'package:dashboard/widgets/right_panel.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dashboard/pages/canva_nav_rail.dart';
 
 class SplitPanel extends StatefulWidget {
   final int columns;
   final double itemSpacing;
-  const SplitPanel({super.key, this.columns = 3, this.itemSpacing = 2.0});
+  final List<BpPagesSchema> pagesData;
+  const SplitPanel({
+    super.key,
+    this.columns = 3,
+    this.itemSpacing = 2.0,
+    required this.pagesData,
+  });
 
   @override
   State<SplitPanel> createState() => _SplitPanelState();
@@ -46,8 +63,22 @@ class _SplitPanelState extends State<SplitPanel> {
   /// BPWidgets
   ///
   BPPageController bpController = BPPageController.loadNPages(5);
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    for (int i = 0; i < widget.pagesData.length; i++) {
+      final BPPageController expPage = BPPageController.createNewPage(
+        widget.pagesData[i].pageName,
+        widget.pagesData[i].pageId,
+      );
+      bpController.pagesRegistry.addEntries(expPage.pagesRegistry.entries);
+    }
+  }
 
   ///
+  late BpPagesSchema bpPagesSchema;
+  late List<BpPagesSchema> allPageData = widget.pagesData;
   List<BPWidget> upper = [];
   final List<BPWidget> lower = [
     BPWidget(
@@ -118,6 +149,13 @@ class _SplitPanelState extends State<SplitPanel> {
   BPWidget? selectedWidgetProps;
 
   int navSelectedIndex = 0;
+
+  // BpPagesSchema pagesSchema = BpPagesSchema(
+  //   pageId: '',
+  //   pageName: '',
+  //   appBar: null,
+  //   bpWidgetList:[],
+  // );
 
   /// this method is called when the itemplaceholder is dragged
   /// it's set  the state -> dragStart and data state properties
@@ -199,6 +237,163 @@ class _SplitPanelState extends State<SplitPanel> {
     setState(() {});
   }
 
+  void _onPageDetailsSaved(BpPagesSchema pageSchema) {
+    bpPagesSchema = pageSchema;
+    print(jsonEncode(bpPagesSchema));
+  }
+
+  void _onPageSelected(BpPagesSchema? pageDataSchema) {
+    print("pageDataSchemaOnPAgeSelected----->${pageDataSchema}");
+    if (pageDataSchema != null) {
+      print("pageDataSchema.bpWidgetLis----->${pageDataSchema.bpWidgetList}");
+      setState(() {
+        upper = [];
+        for (final bpWidget in pageDataSchema.bpWidgetList!.schema) {
+          final bpWidgetProps = bpWidget.bpwidgetProps! as BpwidgetProps;
+          final bpWidgetAction = bpWidget.bpwidgetAction!;
+
+          hoveringData = BPWidget(
+            widgetType: bpWidget.widgetType,
+            id: bpWidget.id,
+
+            bpwidgetProps: BpwidgetProps(
+              label: bpWidgetProps.label,
+              controlName: bpWidgetProps.controlName,
+              controlType: bpWidgetProps.controlType,
+              id: bpWidgetProps.id,
+            ),
+            bpwidgetAction: [
+              BpwidgetAction.initWithId(id: bpWidgetAction[0].id),
+            ], // list of formcontrolactions
+          );
+
+          print('hoveringData => ${hoveringData!.id}');
+          upper.insert(upper.length, hoveringData!);
+        }
+        final appBar = pageDataSchema.appBar!;
+        final actionButton = appBar.actionButton[0];
+        final action = jsonDecode(actionButton['action']);
+        final schema = BpwidgetSchema(schema: upper);
+
+        final taskDataProvider = NavigationTaskDataProvider(
+          url: action['job']['taskDataprovider']['url'],
+        );
+
+        final tasks = [
+          NavigationTask(
+            id: MathUtils.generateUniqueID(),
+            name: Task.checkUrl.name,
+          ),
+          NavigationTask(
+            id: MathUtils.generateUniqueID(),
+            name: Task.navigation.name,
+          ),
+        ];
+        final job = BPwidgetJob(
+          type: action['job']['type'],
+          id: action['job']['id'],
+          name: action['job']['name'],
+          taskDataprovider: taskDataProvider,
+          tasks: tasks,
+        );
+
+        final actionObj = BpwidgetAction(
+          name: action['name'],
+          id: action['id'],
+          job: job,
+        );
+
+        final appBarObj = BPAppBarConfig(
+          title: pageDataSchema.appBar!.title,
+          actionButton: [
+            {'name': actionButton['name'], 'action': actionObj},
+          ],
+        );
+        bpPagesSchema = BpPagesSchema(
+          pageId: pageDataSchema.pageId,
+          pageName: pageDataSchema.pageName,
+          appBar: appBarObj,
+          bpWidgetList: schema,
+        );
+      });
+    } else {
+      setState(() {
+        hoveringData = null;
+        upper = [];
+      });
+    }
+  }
+
+  callApi(pageSaverequest, url) async {
+    try {
+      Response response =
+          await ApiCall(
+            dio: ApiClient().getDio(),
+            url: url,
+            // url:"http://172.30.3.246:8000/api/getApiSchemaById/",
+            method: "POST",
+            request: pageSaverequest,
+          ).callApi();
+      print('response-------------->$response');
+      return response;
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  getCallApi() async {
+    Map<String, dynamic> req = {"id": "54321"};
+    try {
+      final response =
+          await ApiCall(
+            dio: ApiClient().getDio(),
+            // url: "http://172.30.3.246:8000/api/savePageSchema/", //save pages
+            // url: "http://172.30.3.246:8000/api/getPageSchemaById/", //get a page
+            url:
+                "https://swirl-backend.vercel.app/api/getAllPagesSchema/", //get All pages
+
+            method: "POST",
+            request: req,
+          ).callApi();
+      print('response-------------->$response');
+      final data =
+          response is String ? jsonDecode(response) : response.data ?? response;
+      if (allPageData != null) {
+        allPageData = [];
+        for (int i = 0; i < data.length; i++) {
+          final schemaString = data[i]['schema'];
+          final schemaDecoded = jsonDecode(schemaString);
+          final pagesData = BpPagesSchema.fromJson(
+            schemaDecoded['BpPagesSchema'][0],
+          );
+          allPageData.add(pagesData);
+          print(pagesData.pageName);
+          print("pagesData$i----------------->$pagesData");
+        }
+      }
+
+      // print(pagesData!.pageName);
+
+      print('bpPagesSchema-------------->$allPageData');
+      return allPageData;
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  framPageRequestSave(BpPagesSchema pageData) {
+    return {
+      "clientId": "56789",
+      "clientName": "CodeTech",
+      "appId": "54321",
+      "appName": "Agri",
+      "pageName": pageData.pageName,
+      "pageId": pageData.pageId,
+      "pageDesc": "toStore Personal Info of the user",
+      "schema": jsonEncode(pageData),
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<BpwidgetBloc, BpwidgetState>(
@@ -278,29 +473,61 @@ class _SplitPanelState extends State<SplitPanel> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text('BuildPerfect'),
+            // toolbarTextStyle: TextStyle(color: Colors.white,fontWeight:FontWeight.w600),
+            iconTheme: GlobalColors.iconThemeWhite,
+            titleTextStyle: GlobalColors.titleTextStyleWhite,
+            actionsIconTheme: GlobalColors.iconThemeWhite,
+            title: Text('BuildPerfect', style: TextStyle(fontSize: 25)),
+            flexibleSpace: Container(
+              decoration: BoxDecoration(gradient: GlobalColors.appBarBGColor),
+            ),
             elevation: 2,
             actions: [
               IconButton(
+                onPressed: () async {
+                  final schema = BpwidgetSchema(schema: upper);
+                  // final schemaJson = schema.toJson();
+                  // final schemaWidget = BpwidgetSchema.fromJson(schemaJson);
+                  bpPagesSchema = BpPagesSchema(
+                    pageId: bpPagesSchema.pageId,
+                    pageName: bpPagesSchema.pageName,
+                    appBar: bpPagesSchema.appBar,
+                    bpWidgetList: schema,
+                  );
+
+                  final pageSaverequest = framPageRequestSave(bpPagesSchema);
+                  await callApi(
+                    pageSaverequest,
+                    "https://swirl-backend.vercel.app/api/savePageSchema/",
+                  );
+
+                  setState(() async {
+                    await getCallApi();
+                    print(
+                      "widget.pagesData insid save All--------->${widget.pagesData}",
+                    );
+                  });
+                },
+                icon: Icon(Icons.save),
+              ),
+              IconButton(
                 onPressed: () {
-                  // upper.asMap().entries.map((e) {
-                  //   print(e.value.toJson());
-                  // });
-
-                  // for (int i = 0; i < upper.length; i++) {
-                  //   print(upper[i].toJson());
-                  // }
-
                   final schema = BpwidgetSchema(schema: upper);
                   final schemaJson = schema.toJson();
                   final schemaWidget = BpwidgetSchema.fromJson(schemaJson);
+                  bpPagesSchema = BpPagesSchema(
+                    pageId: bpPagesSchema.pageId,
+                    pageName: bpPagesSchema.pageName,
+                    appBar: bpPagesSchema.appBar,
+                    bpWidgetList: schema,
+                  );
+
                   print('schema => $schemaJson');
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder:
-                          (context) =>
-                              MobileScreen(pageData: schemaWidget.schema),
+                          (context) => MobileScreen(pageData: bpPagesSchema),
                     ),
                   );
                 },
@@ -323,129 +550,132 @@ class _SplitPanelState extends State<SplitPanel> {
                   (leftPanelWidth + centerPanelWidth) +
                   80;
               final leftPanelheight = constraints.maxHeight / 2;
-              return Padding(
-                padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      width: navrailWidth,
-                      left: 0,
-                      height: constraints.maxHeight,
-                      child: CanvaNavigationRailExample(),
-                      // child: CustomNavigationRail(
-                      //   selectedIndex: navSelectedIndex,
-                      //   isExtend: false,
-                      //   label: ["Home", "Pages", "More"],
-                      //   icons: [Icons.home, Icons.file_copy, Icons.more],
-                      //   backgroundColor: Colors.pink.shade100,
-                      //   onDestinationSelected: (value) {
-                      //     setState(() {
-                      //       navSelectedIndex = value;
-                      //       if (navSelectedIndex == 0) {
-                      //         Navigator.pop(context);
-                      //       }
-                      //     });
-                      //   },
-                      // ),
-                    ),
-                    Positioned(
-                      // for draggable component
-                      width: leftPanelWidth - 15,
-                      height: leftPanelheight - 2,
-                      left: navrailWidth - 30,
-                      top: 0,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(color: Color(0xFFF0F1F5)),
-
-                        child: MyDropRegion(
-                          onDrop: drop,
-                          updateDropPreview: updateDropPreview,
-                          childSize: itemSize,
-                          columns: widget.columns,
-                          panel: Panel.lower,
-
-                          child: ItemPanel(
-                            width: leftPanelWidth - 20,
-                            crossAxisCount: widget.columns,
-                            spacing: widget.itemSpacing,
-                            items: lower,
-                            onDragStart: onItemDragStart,
-                            panel: Panel.lower,
-                            dragStart: dragStart,
-                            dropPreview: dropPreview,
-                            hoveringData: hoveringData,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    Positioned(
-                      width: leftPanelWidth - 20,
-                      height: leftPanelheight - 2,
-                      left: navrailWidth - 30,
-                      bottom: 0,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(color: Color(0xFFF0F1F5)),
-                        child: PageContainer(
-                          width: leftPanelWidth - 100,
-                          bpPageController: bpController,
-                        ),
-                      ),
-                    ),
-                    // Positioned(
-                    //   width: 2,
-                    //   height: constraints.maxHeight,
-                    //   left: leftPanelWidth,
-                    //   child: ColoredBox(color: GlobalColors.centerPanelBGColor),
+              return Stack(
+                children: [
+                  Positioned(
+                    width: navrailWidth,
+                    left: 0,
+                    height: constraints.maxHeight,
+                    child: CanvaNavigationRailExample(),
+                    // child: CustomNavigationRail(
+                    //   selectedIconTheme: GlobalColors.navSelectIcomeThem,
+                    //   indicatorColor: GlobalColors.navIndicatorColor,
+                    //   selectedIndex: navSelectedIndex,
+                    //   isExtend: false,
+                    //   label: ["Home", "Pages", "More"],
+                    //   icons: [Icons.home, Icons.file_copy, Icons.more],
+                    //   backgroundColor: GlobalColors.navBGColor,
+                    //   onDestinationSelected: (value) {
+                    //     setState(() {
+                    //       navSelectedIndex = value;
+                    //       if (navSelectedIndex == 0) {
+                    //         Navigator.pop(context);
+                    //       }
+                    //     });
+                    //   },
                     // ),
-                    Positioned(
-                      // centerpanel for dragtarget
-                      width: centerPanelWidth,
-                      height: constraints.maxHeight,
-                      left: leftPanelWidth + 50,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: GlobalColors.centerPanelBGColor,
-                        ),
-                        child: MyDropRegion(
-                          onDrop: drop,
-                          updateDropPreview: updateDropPreview,
-                          childSize: itemSize,
-                          columns: widget.columns,
-                          panel: Panel.upper,
-                          child: ItemPanel(
-                            width: leftPanelWidth - 100,
-                            crossAxisCount: widget.columns,
-                            spacing: widget.itemSpacing,
-                            items: upper,
-                            onDragStart: onItemDragStart,
-                            panel: Panel.upper,
-                            dragStart: dragStart,
-                            dropPreview: dropPreview,
-                            hoveringData: hoveringData,
-                            onItemClicked: onItemClickRef,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      width: rightPanelWidth,
-                      height: constraints.maxHeight,
-                      right: 0,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(color: Color(0xFFF0F1F5)),
+                  ),
+                  Positioned(
+                    // for draggable component
+                    width: leftPanelWidth - 10,
+                    height: leftPanelheight - 2,
+                    left: navrailWidth - 25,
+                    top: 0,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(color: Color(0xFFF0F1F5)),
+                      child: MyDropRegion(
+                        onDrop: drop,
+                        updateDropPreview: updateDropPreview,
+                        childSize: itemSize,
+                        columns: widget.columns,
+                        panel: Panel.lower,
 
-                        /// RightPanel - is parent model for props , action and
-                        /// datasource panel
-                        child: RightPanel(
-                          width: rightPanelWidth,
-                          height: constraints.maxHeight,
-                          props: selectedWidgetProps,
+                        child: ItemPanel(
+                          width: leftPanelWidth - 20,
+                          crossAxisCount: widget.columns,
+                          spacing: widget.itemSpacing,
+                          items: lower,
+
+                          onDragStart: onItemDragStart,
+                          panel: Panel.lower,
+                          dragStart: dragStart,
+                          dropPreview: dropPreview,
+                          hoveringData: hoveringData,
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+
+                  Positioned(
+                    width: leftPanelWidth - 10,
+                    height: leftPanelheight - 2,
+                    left: navrailWidth - 25,
+                    bottom: 0,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(color: Color(0xFFF0F1F5)),
+                      child: PageContainer(
+                        bpPageSchema: allPageData,
+                        width: leftPanelWidth - 100,
+                        bpPageController: bpController,
+                        onPageDetailsSaved: _onPageDetailsSaved,
+                        onPageClicked: _onPageSelected,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    width: 2,
+                    height: constraints.maxHeight,
+                    left: leftPanelWidth + 50,
+                    child: ColoredBox(color: GlobalColors.centerPanelBGColor),
+                  ),
+                  Positioned(
+                    // centerpanel for dragtarget
+                    width: centerPanelWidth,
+                    height: constraints.maxHeight,
+                    left: leftPanelWidth + 50,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: GlobalColors.centerPanelBGColor,
+                      ),
+                      child: MyDropRegion(
+                        onDrop: drop,
+                        updateDropPreview: updateDropPreview,
+                        childSize: itemSize,
+                        columns: widget.columns,
+                        panel: Panel.upper,
+                        child: ItemPanel(
+                          width: leftPanelWidth - 100,
+                          crossAxisCount: widget.columns,
+                          spacing: widget.itemSpacing,
+                          items: upper,
+
+                          onDragStart: onItemDragStart,
+                          panel: Panel.upper,
+                          dragStart: dragStart,
+                          dropPreview: dropPreview,
+                          hoveringData: hoveringData,
+                          onItemClicked: onItemClickRef,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    width: rightPanelWidth,
+                    height: constraints.maxHeight,
+                    right: 0,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(color: Color(0xFFF0F1F5)),
+
+                      /// RightPanel - is parent model for props , action and
+                      /// datasource panel
+                      child: RightPanel(
+                        width: rightPanelWidth,
+                        height: constraints.maxHeight,
+                        props: selectedWidgetProps,
+                      ),
+                    ),
+                  ),
+                ],
               );
             },
           ),

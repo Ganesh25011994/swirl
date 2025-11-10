@@ -8,6 +8,7 @@
 
 */
 
+import 'package:dashboard/appdata/page/bpappbar.dart';
 import 'package:dashboard/utils/math_utils.dart';
 import 'package:flutter/material.dart';
 
@@ -18,10 +19,13 @@ class PageGlobalConstants {
   String pageName;
   String pageId;
   bool isSelected;
+  BPAppBarConfig? pageProps;
+
   PageGlobalConstants({
     required this.pageName,
     required this.pageId,
     required this.isSelected,
+    this.pageProps,
   });
 }
 
@@ -33,9 +37,18 @@ class BPPageController extends BPPageHelper with SelectePageMixin {
     PageRegistryMap pageRegistryMap = {};
     for (int i = 1; i <= totalPages; i++) {
       String id = MathUtils.generateUniqueID();
+
       final entry = loadPage(pageId: id, pageName: 'page$i');
       pageRegistryMap.addEntries([entry]);
     }
+    return BPPageController(pagesRegistry: pageRegistryMap);
+  }
+  
+  static BPPageController createNewPage(String? pageName,String? extPageId) {
+    PageRegistryMap pageRegistryMap = {};
+    String id = extPageId ?? MathUtils.generateUniqueID();
+    final entry = loadPage(pageId: id, pageName: pageName!);
+    pageRegistryMap.addEntries([entry]);
     return BPPageController(pagesRegistry: pageRegistryMap);
   }
 
@@ -63,7 +76,7 @@ mixin SelectePageMixin {
   void selectPage(String pageId);
 }
 
-PageRegistryMapEntry loadPage({
+ PageRegistryMapEntry loadPage({
   required String pageId,
   required String pageName,
   isSelected = false,

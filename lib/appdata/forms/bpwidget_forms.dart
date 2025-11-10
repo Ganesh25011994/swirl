@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 class BpwidgetForms {
@@ -27,4 +28,13 @@ class BpwidgetForms {
     'key2': FormControl<String>(),
     'key3': FormControl<String>(),
   });
+
+  static FormGroup get_pageConfiguration_form(){
+    return  FormGroup({
+      'title':FormControl<String>(),
+      'actionButton':FormControl<String>(),
+      'action':FormControl<String>(),
+      'pageUrl':FormControl<String>(),
+    });
+  }
 }

@@ -1,3 +1,6 @@
+import 'package:dashboard/appdata/page/action_icons.dart';
+import 'package:dashboard/appdata/page/bpappbar.dart';
+import 'package:dashboard/appdata/page/bppage_schema.dart';
 import 'package:dashboard/bloc/bpwidgetaction/model/action/bpwidget_action.dart';
 import 'package:dashboard/bloc/bpwidgetaction/model/dataprovider/bpwidget_tasks_dataprovider.dart';
 import 'package:dashboard/bloc/bpwidgetaction/model/jobs/bpwidget_job.dart';
@@ -12,9 +15,16 @@ import 'package:reactive_forms/reactive_forms.dart';
 import 'dart:convert';
 
 class DynamicForm extends StatelessWidget {
-  final List<BPWidget> widgetSchema;
+  // final List<BPWidget> widgetSchema;
+  // final BpPagesSchema appBar;
+  final BpPagesSchema pagesSchema;
 
-  const DynamicForm({Key? key, required this.widgetSchema}) : super(key: key);
+  const DynamicForm({
+    Key? key,
+    // required this.widgetSchema,
+    // required this.appBar,
+    required this.pagesSchema,
+  }) : super(key: key);
 
   FormGroup buildFormGroup(List<BPWidget> widgets) {
     final controls = <String, AbstractControl<dynamic>>{};
@@ -149,11 +159,58 @@ class DynamicForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // final schema = BpwidgetSchema.fromJson(jsonSchema);
-    final widgets = widgetSchema;
+    final widgets =pagesSchema.bpWidgetList!.schema;
     final formGroup = buildFormGroup(widgets);
+    final actionButtons = pagesSchema.appBar!.actionButton.elementAt(0);
+    final action = actionButtons['action'] as BpwidgetAction;
+    print(actionButtons['name'].toString());
+    
 
     return Scaffold(
-      appBar: AppBar(title: Text('HomePage')),
+      appBar: AppBar(
+        title: Text(pagesSchema.appBar!.title),
+
+        actions: [
+          if (ActionIcons.getActionIcons().containsKey(actionButtons['name']))
+            IconButton(
+              onPressed: () {  
+                if (action.name != null && action.job!.type == 'Navigation') {
+                  // Placeholder for navigation logic
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Navigating to ${action.job!.taskDataprovider.url}',
+                      ),
+                    ),
+                  );
+                  if (action.job!.taskDataprovider.url.toLowerCase() ==
+                      'dashboard') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DashboardPage()),
+                    );
+                  }
+                }else{
+                   BpwidgetAction(
+                                id: '',
+                                name: '',
+                                job: BPwidgetJob(
+                                  type: '',
+                                  id: '',
+                                  name: '',
+                                  taskDataprovider: BPTaskDataprovider(
+                                    url: '',
+                                  ),
+                                  tasks: [],
+                                ),
+                  );
+                }
+              },
+              icon: ActionIcons.getActionIcons()[actionButtons['name']]!,
+            ),
+        ],
+      ),
+
       body: ReactiveForm(
         formGroup: formGroup,
         child: Padding(
