@@ -8,16 +8,20 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:dashboard/appstyles/global_styles.dart';
-import 'package:dashboard/bloc/bpwidgetInboxprops/bpwidget_inbox_prosp.dart';
+import 'package:dashboard/bloc/bpinbox/bpwidget_inbox_props_bloc.dart';
 import 'package:dashboard/bloc/bpwidgetprops/model/bpwidget_props.dart';
 import 'package:dashboard/bloc/bpwidgets/model/bpwidget.dart';
 import 'package:dashboard/types/drag_drop_types.dart';
+import 'package:dashboard/types/global_types.dart';
 import 'package:dashboard/widgets/containers/dragged_holder.dart';
+import 'package:dashboard/widgets/containers/dragged_inbox_holder.dart';
+import 'package:dashboard/widgets/lead_tile_card.dart';
 import 'package:dashboard/widgets/my_draggable_widget.dart';
 import 'package:dashboard/widgets/rightpanels/panel_header.dart';
 import 'package:dashboard/widgets/search_bar.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ItemPanel extends StatefulWidget {
   final double width;
@@ -76,6 +80,10 @@ class _ItemsPanelState extends State<ItemPanel> {
     int index = 0,
   }) {
     print('BpwidgetProps props => $props ');
+
+    final widgetType = props.widgetType?.name;
+    final bpWidgetProps = widgetType != 'inbox' ? props.bpwidgetProps! as BpwidgetProps : null;
+    BpwidgetInboxPropsState bpWidgerInboxPropsState = context.read<BpwidgetInboxPropsBloc>().state;
     return switch (controlName) {
       PlaceholderWidgets.Textfield => DraggedHolder(
         onTapDraggedControl: () {
@@ -90,9 +98,9 @@ class _ItemsPanelState extends State<ItemPanel> {
           setState(() {});
         },
         labelText:
-            props.bpwidgetProps!.label.isEmpty
+            bpWidgetProps!.label.isEmpty
                 ? 'label ${index + 1}'
-                : props.bpwidgetProps!.label,
+                : bpWidgetProps.label,
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
@@ -145,9 +153,9 @@ class _ItemsPanelState extends State<ItemPanel> {
           setState(() {});
         },
         labelText:
-            props.bpwidgetProps!.label.isEmpty
+            bpWidgetProps!.label.isEmpty
                 ? 'label ${index + 1}'
-                : props.bpwidgetProps!.label,
+                : bpWidgetProps.label,
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
@@ -201,9 +209,9 @@ class _ItemsPanelState extends State<ItemPanel> {
         },
 
         labelText:
-            props.bpwidgetProps!.label.isEmpty
+            bpWidgetProps!.label.isEmpty
                 ? 'label ${index + 1}'
-                : props.bpwidgetProps!.label,
+                : bpWidgetProps.label,
 
         child: DecoratedBox(
           decoration: BoxDecoration(
@@ -301,9 +309,9 @@ class _ItemsPanelState extends State<ItemPanel> {
       ),
       PlaceholderWidgets.Button => DraggedHolder(
         labelText:
-            props.bpwidgetProps!.label.isEmpty
+            bpWidgetProps!.label.isEmpty
                 ? 'label ${index + 1}'
-                : props.bpwidgetProps!.label,
+                : bpWidgetProps.label,
 
         onTapDraggedControl: () {
           selectedIndex = index;
@@ -338,7 +346,8 @@ class _ItemsPanelState extends State<ItemPanel> {
         ),
       ),
       PlaceholderWidgets.Label => Text('label ${index + 1}'),
-      PlaceholderWidgets.inbox => DraggedHolder(
+      PlaceholderWidgets.inbox => bpWidgerInboxPropsState.saveStatus == SaveStatus.saved ? 
+      DraggedInboxHolder(
         onTapDraggedControl: () {
           /// when draggedholder is selected , selected formcontrol
           /// label and other properties should be autopopulate
@@ -350,7 +359,7 @@ class _ItemsPanelState extends State<ItemPanel> {
           widget.onItemClicked!(props);
           setState(() {});
         },
-        labelText: 'apiName',
+        labelText: 'List Inbox',
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
@@ -363,32 +372,80 @@ class _ItemsPanelState extends State<ItemPanel> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               SizedBox(
-                width: 300,
-                child: TextField(
-                  enabled:
-                      false, // enabled: selectedIndex == index ? true : false,
-                  decoration: InputDecoration(
-                    hintText: 'InboxCard',
-                    label: Text('TextField'),
-                    floatingLabelStyle: TextStyle(fontSize: 14),
-                  ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
+                      child: LeadTileCard(
+                        title: bpWidgerInboxPropsState.bpWidgetInboxProps.title,
+                        subtitle: bpWidgerInboxPropsState.bpWidgetInboxProps.subtitle,
+                        icon: Icons.person,
+                        color: Colors.teal,
+                        phone: bpWidgerInboxPropsState.bpWidgetInboxProps.key1,
+                        createdon: bpWidgerInboxPropsState.bpWidgetInboxProps.key2,
+                        location: bpWidgerInboxPropsState.bpWidgetInboxProps.key3,
+                        loanamount: '12345',
+                      )
+                    ),
+                    ElevatedButton(onPressed: () {}, child: Text('Save')),
+                  ],
                 ),
               ),
+              GlobalStyles.fillerSizedBox50,
               selectedIndex == index
-                  ? Row(
-                    children: [
-                      GlobalStyles.selectedIcon,
-                      SizedBox(width: 5),
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            itemsCopy.removeAt(selectedIndex);
-                          });
-                        },
-                        icon: GlobalStyles.deleteIcon,
-                      ),
-                    ],
-                  )
+                  ? GlobalStyles.selectedIcon
+                  : GlobalStyles.fillerSizedBox50,
+            ],
+          ),
+        ),
+      ) :
+       DraggedInboxHolder(
+        onTapDraggedControl: () {
+          /// when draggedholder is selected , selected formcontrol
+          /// label and other properties should be autopopulate
+          /// props panel
+          ///
+          selectedIndex = index;
+
+          // BpwidgetProps bpWidgetPropsObj = props.bpwidgetProps!;
+          widget.onItemClicked!(props);
+          setState(() {});
+        },
+        labelText: 'List Inbox',
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border:
+                selectedIndex == index
+                    ? Border.all(width: 2, color: Colors.teal)
+                    : Border.all(width: 2, color: Colors.transparent),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              SizedBox(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
+                      child: LeadTileCard(
+                        title: 'title',
+                        subtitle: 'subtitle',
+                        icon: Icons.person,
+                        color: Colors.teal,
+                        phone: 'key3',
+                        createdon: 'key4',
+                        location: 'key5',
+                        loanamount: '12345',
+                      )
+                    ),
+                    ElevatedButton(onPressed: () {}, child: Text('Save')),
+                  ],
+                ),
+              ),
+              GlobalStyles.fillerSizedBox50,
+              selectedIndex == index
+                  ? GlobalStyles.selectedIcon
                   : GlobalStyles.fillerSizedBox50,
             ],
           ),
@@ -412,6 +469,7 @@ class _ItemsPanelState extends State<ItemPanel> {
       ),
       PlaceholderWidgets.Button => Icon(Icons.touch_app, color: Colors.white),
       PlaceholderWidgets.Label => Icon(Icons.label, color: Colors.white),
+      PlaceholderWidgets.inbox => Icon(Icons.label, color: Colors.white),
     };
   }
 
@@ -432,9 +490,8 @@ class _ItemsPanelState extends State<ItemPanel> {
         children:
             itemsCopy.asMap().entries.map<Widget>((e) {
               Widget child = SizedBox(
-                height: 50,
+                height: e.value.widgetType!.name == 'inbox' ? 170 : 50,
                 width: 0,
-
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,

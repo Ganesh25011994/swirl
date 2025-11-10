@@ -9,6 +9,8 @@ import 'dart:math';
 
 import 'package:dashboard/appdata/page/page_global_constants.dart';
 import 'package:dashboard/appstyles/global_colors.dart';
+import 'package:dashboard/bloc/bpinbox/bpwidget_inbox_props_bloc.dart';
+import 'package:dashboard/bloc/bpinbox/model/bpwiddgetinboxprops.dart';
 import 'package:dashboard/bloc/bpwidgetaction/model/action/bpwidget_action.dart';
 import 'package:dashboard/bloc/bpwidgetprops/bpwidget_props_bloc.dart';
 import 'package:dashboard/bloc/bpwidgetprops/model/bpwidget_props.dart';
@@ -96,6 +98,17 @@ class _SplitPanelState extends State<SplitPanel> {
       ),
       widgetType: PlaceholderWidgets.Label,
     ),
+    BPWidget(
+      bpwidgetProps: BPWidgetInboxProps(
+        apiName: '',
+        title: '',
+        subtitle: '',
+        key1: '',
+        key2: '',
+        key3: ''
+      ),
+      widgetType: PlaceholderWidgets.inbox,
+    ),
   ];
 
   PanelLocation dragStart = (-1, Panel.lower);
@@ -133,25 +146,49 @@ class _SplitPanelState extends State<SplitPanel> {
       if (dropPreview!.$2 == Panel.upper) {
         final uniqueID = MathUtils.generateUniqueID();
         // print('onDrop => ${lower[dropPreview!.$1].bpwidgetProps}');
-        print('hoveringData!.widgetType => ${hoveringData!.widgetType!.name}');
-        hoveringData = BPWidget(
-          widgetType: hoveringData!.widgetType,
-          id: uniqueID,
-          bpwidgetProps: BpwidgetProps(
-            label: '',
-            controlName:
-                '${bpController.pagesRegistry.entries.first.value.pageName}_',
-
-            controlType: hoveringData!.widgetType!.name,
+        // print('hoveringData!.widgetType => ${hoveringData!.widgetType!.name}');
+        if (hoveringData!.widgetType!.name == 'inbox') {
+          hoveringData = BPWidget(
+            widgetType: hoveringData!.widgetType,
             id: uniqueID,
-          ),
-          bpwidgetAction: [
-            BpwidgetAction.initWithId(id: uniqueID),
-          ], // list of formcontrolactions
-        );
+            bpwidgetProps: BPWidgetInboxProps(
+              id: uniqueID,
+              apiName: '',
+              title: '',
+              subtitle: '',
+              key1: '',
+              key2: '',
+              key3: ''
+            ),
+            bpwidgetAction: [
+              BpwidgetAction.initWithId(id: uniqueID),
+            ], // list of formcontrolactions
+          );
 
-        print('hoveringData => ${hoveringData!.id}');
-        upper.insert(max(dropPreview!.$1, upper.length), hoveringData!);
+          print('hoveringData => ${hoveringData!.id}');
+          upper.insert(max(dropPreview!.$1, upper.length), hoveringData!);
+          print("final inbox upper list => $upper");
+        } else {
+          hoveringData = BPWidget(
+            widgetType: hoveringData!.widgetType,
+            id: uniqueID,
+            bpwidgetProps: BpwidgetProps(
+              label: '',
+              controlName:
+                  '${bpController.pagesRegistry.entries.first.value.pageName}_',
+
+              controlType: hoveringData!.widgetType!.name,
+              id: uniqueID,
+            ),
+            bpwidgetAction: [
+              BpwidgetAction.initWithId(id: uniqueID),
+            ], // list of formcontrolactions
+          );
+
+          print('hoveringData => ${hoveringData!.id}');
+          upper.insert(max(dropPreview!.$1, upper.length), hoveringData!);
+        }
+        
       }
     });
   }
@@ -169,40 +206,70 @@ class _SplitPanelState extends State<SplitPanel> {
       /// changes . in our case whenever we are adding the Bpwidgets in
       /// List<BpWidgets>
       listener: (context, state) {
-        print(
-          'inside splitpanel builder method => ${state.bpWidgetsList?.length} ${state.bpWidgetsList![0].bpwidgetProps}',
-        );
+        if (upper[0].widgetType!.name == 'inbox') {
+          final bpWidgetStateProps =  state.bpWidgetsList![0].bpwidgetProps! as BPWidgetInboxProps;
+          final upperFiltered = upper.where((u) {
+            return u.id == bpWidgetStateProps.id;
+          });
+          final indexOfSelectedBpWidget = upper.indexOf(upperFiltered.first);
 
-        final upperFiltered = upper.where((u) {
-          return u.id == state.bpWidgetsList![0].bpwidgetProps!.id;
-        });
-        final indexOfSelectedBpWidget = upper.indexOf(upperFiltered.first);
-        if (indexOfSelectedBpWidget != -1) {
-          BPWidget _upper = upperFiltered.first;
+          if (indexOfSelectedBpWidget != -1) {
+            BPWidget _upper = upperFiltered.first;
+            final upperWidget = _upper.bpwidgetProps! as BPWidgetInboxProps;
 
-          _upper.bpwidgetProps = _upper.bpwidgetProps!.copyWith(
-            controlName: state.bpWidgetsList![0].bpwidgetProps!.controlName,
-            label: state.bpWidgetsList![0].bpwidgetProps!.label,
-            controlType: state.bpWidgetsList![0].bpwidgetProps!.controlType,
-            isRequired: state.bpWidgetsList![0].bpwidgetProps!.isRequired,
-            isVerificationRequired:
-                state.bpWidgetsList![0].bpwidgetProps!.isVerificationRequired,
-            max: state.bpWidgetsList![0].bpwidgetProps!.max,
-            min: state.bpWidgetsList![0].bpwidgetProps!.min,
-            validationPatterns:
-                state.bpWidgetsList![0].bpwidgetProps!.validationPatterns,
-            id: state.bpWidgetsList![0].bpwidgetProps!.id,
-          );
-          if (state.bpWidgetsList![0].bpwidgetAction == null) {
+            _upper.bpwidgetProps =  upperWidget.copyWith(
+              id: bpWidgetStateProps.id,
+              apiName: bpWidgetStateProps.apiName,
+              title: bpWidgetStateProps.title,
+              subtitle: bpWidgetStateProps.subtitle,
+              key1: bpWidgetStateProps.key1,
+              key2: bpWidgetStateProps.key2,
+              key3: bpWidgetStateProps.key3,
+            );
+            if (state.bpWidgetsList![0].bpwidgetAction == null) {
             _upper.bpwidgetAction = [BpwidgetAction.initWithId(id: '')];
-          } else {
-            _upper.bpwidgetAction = state.bpWidgetsList![0].bpwidgetAction;
+            } else {
+              _upper.bpwidgetAction = state.bpWidgetsList![0].bpwidgetAction;
+            }
+            upper[indexOfSelectedBpWidget] = _upper;
           }
 
-          // _upper.copyWith(bpwidgetProps: state.bpWidgetsList![0].bpwidgetProps);
-          upper[indexOfSelectedBpWidget] = _upper;
-          print(upper[0].bpwidgetProps!.label);
+          final jsonList = context.read<BpwidgetInboxPropsBloc>().state.jsonListData;
+          final inboxList = jsonList!['responseData']['leadlists'] ?? [];
+        } else {
+          final bpWidgetStateProps =  state.bpWidgetsList![0].bpwidgetProps! as BpwidgetProps;
+          final upperFiltered = upper.where((u) {
+            return u.id == bpWidgetStateProps.id;
+          });
+          final indexOfSelectedBpWidget = upper.indexOf(upperFiltered.first);
+          if (indexOfSelectedBpWidget != -1) {
+            BPWidget _upper = upperFiltered.first;
+            final upperWidget = _upper.bpwidgetProps! as BpwidgetProps;
+
+            _upper.bpwidgetProps = upperWidget.copyWith(
+              controlName: bpWidgetStateProps.controlName,
+              label: bpWidgetStateProps.label,
+              controlType: bpWidgetStateProps.controlType,
+              isRequired: bpWidgetStateProps.isRequired,
+              isVerificationRequired:
+                  bpWidgetStateProps.isVerificationRequired,
+              max: bpWidgetStateProps.max,
+              min: bpWidgetStateProps.min,
+              validationPatterns:
+                  bpWidgetStateProps.validationPatterns,
+              id: bpWidgetStateProps.id,
+            );
+            if (state.bpWidgetsList![0].bpwidgetAction == null) {
+              _upper.bpwidgetAction = [BpwidgetAction.initWithId(id: '')];
+            } else {
+              _upper.bpwidgetAction = state.bpWidgetsList![0].bpwidgetAction;
+            }
+
+            // _upper.copyWith(bpwidgetProps: state.bpWidgetsList![0].bpwidgetProps);
+            upper[indexOfSelectedBpWidget] = _upper;
+          }
         }
+        
       },
       builder: (context, state) {
         print(
@@ -228,10 +295,6 @@ class _SplitPanelState extends State<SplitPanel> {
                   final schemaJson = schema.toJson();
                   final schemaWidget = BpwidgetSchema.fromJson(schemaJson);
                   print('schema => $schemaJson');
-                  print(
-                    'widget =>${schemaWidget.schema[0].bpwidgetProps!.controlName}',
-                  );
-
                   Navigator.push(
                     context,
                     MaterialPageRoute(

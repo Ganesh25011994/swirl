@@ -6,6 +6,7 @@
 
 import 'package:dashboard/pages/dashboard_page.dart';
 import 'package:dashboard/pages/dynamic_form_builder.dart';
+import 'package:dashboard/pages/inbox_page_builder.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dashboard/bloc/bpwidgets/model/bpwidget.dart';
@@ -40,7 +41,8 @@ class MobileScreenState extends State<MobileScreen> {
         locale: DevicePreview.locale(context),
         builder: DevicePreview.appBuilder,
         title: 'Device Preview Navigation Demo',
-        home: DynamicForm(widgetSchema: pageRenderData),
+        // home: DynamicForm(widgetSchema: pageRenderData),
+        home: InboxPageBuilder(widgetSchema: pageRenderData),
         routes: {
           '/second': (context) => const DashboardPage(),
         },

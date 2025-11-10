@@ -8,6 +8,7 @@
 
 */
 
+import 'package:dashboard/bloc/bpinbox/bpwidget_inbox_props_bloc.dart';
 import 'package:dashboard/bloc/bpwidgetaction/bloc/bpwidget_action_bloc.dart';
 import 'package:dashboard/bloc/bpwidgetprops/bpwidget_props_bloc.dart';
 import 'package:dashboard/bloc/bpwidgets/bpwidget_bloc.dart';
@@ -29,6 +30,7 @@ class _SplitScreenState extends State<SplitScreen> {
         BlocProvider(create: (context) => BpwidgetPropsBloc(), lazy: false),
         BlocProvider(create: (context) => BpwidgetBloc(), lazy: false),
         BlocProvider(create: (context) => BpwidgetActionBloc(), lazy: false),
+        BlocProvider(create: (context) =>  BpwidgetInboxPropsBloc(), lazy: false,)
       ],
       child: Scaffold(body: SplitPanel()),
     );
