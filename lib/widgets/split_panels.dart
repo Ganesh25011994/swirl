@@ -249,26 +249,53 @@ class _SplitPanelState extends State<SplitPanel> {
       setState(() {
         upper = [];
         for (final bpWidget in pageDataSchema.bpWidgetList!.schema) {
-          final bpWidgetProps = bpWidget.bpwidgetProps! as BpwidgetProps;
-          final bpWidgetAction = bpWidget.bpwidgetAction!;
+          if (bpWidget.widgetType!.name == 'inbox') {
+            final bpWidgetInboxProps = bpWidget.bpwidgetProps! as BPWidgetInboxProps;
+            final bpWidgetAction = bpWidget.bpwidgetAction!;
 
-          hoveringData = BPWidget(
-            widgetType: bpWidget.widgetType,
-            id: bpWidget.id,
+            hoveringData = BPWidget(
+              widgetType: bpWidget.widgetType,
+              id: bpWidget.id,
 
-            bpwidgetProps: BpwidgetProps(
-              label: bpWidgetProps.label,
-              controlName: bpWidgetProps.controlName,
-              controlType: bpWidgetProps.controlType,
-              id: bpWidgetProps.id,
-            ),
-            bpwidgetAction: [
-              BpwidgetAction.initWithId(id: bpWidgetAction[0].id),
-            ], // list of formcontrolactions
-          );
+              bpwidgetProps: BPWidgetInboxProps(
+                id: bpWidgetInboxProps.id,
+                apiName: bpWidgetInboxProps.apiName,
+                title: bpWidgetInboxProps.title, 
+                subtitle: bpWidgetInboxProps.subtitle, 
+                key1: bpWidgetInboxProps.key1, 
+                key2: bpWidgetInboxProps.key2, 
+                key3: bpWidgetInboxProps.key3
+              ),
+              bpwidgetAction: [
+                BpwidgetAction.initWithId(id: bpWidgetAction[0].id),
+              ], // list of formcontrolactions
+            );
 
-          print('hoveringData => ${hoveringData!.id}');
-          upper.insert(upper.length, hoveringData!);
+            print('hoveringData => ${hoveringData!.id}');
+            upper.insert(upper.length, hoveringData!);
+          } else {
+            final bpWidgetProps = bpWidget.bpwidgetProps! as BpwidgetProps;
+            final bpWidgetAction = bpWidget.bpwidgetAction!;
+
+            hoveringData = BPWidget(
+              widgetType: bpWidget.widgetType,
+              id: bpWidget.id,
+
+              bpwidgetProps: BpwidgetProps(
+                label: bpWidgetProps.label,
+                controlName: bpWidgetProps.controlName,
+                controlType: bpWidgetProps.controlType,
+                id: bpWidgetProps.id,
+              ),
+              bpwidgetAction: [
+                BpwidgetAction.initWithId(id: bpWidgetAction[0].id),
+              ], // list of formcontrolactions
+            );
+
+            print('hoveringData => ${hoveringData!.id}');
+            upper.insert(upper.length, hoveringData!);
+          }
+          
         }
         final appBar = pageDataSchema.appBar!;
         final actionButton = appBar.actionButton[0];
@@ -625,14 +652,14 @@ class _SplitPanelState extends State<SplitPanel> {
                   Positioned(
                     width: 2,
                     height: constraints.maxHeight,
-                    left: leftPanelWidth + 50,
+                    left: leftPanelWidth + 70,
                     child: ColoredBox(color: GlobalColors.centerPanelBGColor),
                   ),
                   Positioned(
                     // centerpanel for dragtarget
                     width: centerPanelWidth,
                     height: constraints.maxHeight,
-                    left: leftPanelWidth + 50,
+                    left: leftPanelWidth + 70,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         color: GlobalColors.centerPanelBGColor,

@@ -5,18 +5,19 @@
                 widget to stack any widget u need above or below the dragged
                 form control
 */
+import 'package:dashboard/bloc/bpinbox/model/bpwiddgetinboxprops.dart';
 import 'package:dashboard/widgets/lead_tile_card.dart';
 import 'package:flutter/material.dart';
 
 class DraggedInboxHolder extends StatefulWidget {
   final String labelText;
-  final Widget child;
   final VoidCallback? onTapDraggedControl;
+  final BPWidgetInboxProps? inboxProps;
   const DraggedInboxHolder({
     super.key,
     required this.labelText,
-    required this.child,
     this.onTapDraggedControl,
+    this.inboxProps
   });
 
   @override
@@ -46,22 +47,22 @@ class _DraggedInboxHolderState extends State<DraggedInboxHolder> {
           ),
           Center(
             child: Container(
-            padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
-            child: ListView.builder(
-                itemCount: 1,
-                itemBuilder: (context, index) {
-                  return LeadTileCard(
-                    title: 'title',
-                    subtitle: 'subtitle',
-                    icon: Icons.person,
-                    color: Colors.teal,
-                    phone: 'key3',
-                    createdon: 'key4',
-                    location: 'key5',
-                    loanamount: '12345',
-                  );
-                },
-              )
+              padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
+              child: ListView.builder(
+                  itemCount: 1,
+                  itemBuilder: (context, index) {
+                    return LeadTileCard(
+                      title: widget.inboxProps!.title != '' ? widget.inboxProps!.title : 'title',
+                      subtitle: widget.inboxProps!.subtitle != '' ? widget.inboxProps!.subtitle : 'subtitle',
+                      icon: Icons.person,
+                      color: Colors.teal,
+                      phone: widget.inboxProps!.key1 != '' ? widget.inboxProps!.key1 : 'key1',
+                      createdon: widget.inboxProps!.key2 != '' ? widget.inboxProps!.key2 : 'key2',
+                      location: widget.inboxProps!.key3 != '' ? widget.inboxProps!.key3 : 'key3',
+                      loanamount: '12345',
+                    );
+                  },
+                )
             ),
           ),
         ],

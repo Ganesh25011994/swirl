@@ -10,6 +10,7 @@ import 'dart:ui';
 import 'package:dashboard/appdata/page/bppage_schema.dart';
 import 'package:dashboard/appstyles/global_styles.dart';
 import 'package:dashboard/bloc/bpinbox/bpwidget_inbox_props_bloc.dart';
+import 'package:dashboard/bloc/bpinbox/model/bpwiddgetinboxprops.dart';
 import 'package:dashboard/bloc/bpwidgetprops/model/bpwidget_props.dart';
 import 'package:dashboard/bloc/bpwidgets/model/bpwidget.dart';
 import 'package:dashboard/types/drag_drop_types.dart';
@@ -86,7 +87,7 @@ class _ItemsPanelState extends State<ItemPanel> {
 
     final widgetType = props.widgetType?.name;
     final bpWidgetProps = widgetType != 'inbox' ? props.bpwidgetProps! as BpwidgetProps : null;
-    BpwidgetInboxPropsState bpWidgerInboxPropsState = context.read<BpwidgetInboxPropsBloc>().state;
+    final bpWidgetInboxProps = widgetType == 'inbox' ? props.bpwidgetProps! as BPWidgetInboxProps : null;
     return switch (controlName) {
       PlaceholderWidgets.Textfield => DraggedHolder(
         onTapDraggedControl: () {
@@ -349,111 +350,20 @@ class _ItemsPanelState extends State<ItemPanel> {
         ),
       ),
       PlaceholderWidgets.Label => Text('label ${index + 1}'),
-      PlaceholderWidgets.inbox => bpWidgerInboxPropsState.saveStatus == SaveStatus.saved ? 
-      DraggedInboxHolder(
+      PlaceholderWidgets.inbox => DraggedInboxHolder(
         onTapDraggedControl: () {
           /// when draggedholder is selected , selected formcontrol
           /// label and other properties should be autopopulate
           /// props panel
           ///
           selectedIndex = index;
-
           // BpwidgetProps bpWidgetPropsObj = props.bpwidgetProps!;
           widget.onItemClicked!(props);
           setState(() {});
         },
         labelText: 'List Inbox',
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border:
-                selectedIndex == index
-                    ? Border.all(width: 2, color: Colors.teal)
-                    : Border.all(width: 2, color: Colors.transparent),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              SizedBox(
-                child: Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
-                      child: LeadTileCard(
-                        title: bpWidgerInboxPropsState.bpWidgetInboxProps.title,
-                        subtitle: bpWidgerInboxPropsState.bpWidgetInboxProps.subtitle,
-                        icon: Icons.person,
-                        color: Colors.teal,
-                        phone: bpWidgerInboxPropsState.bpWidgetInboxProps.key1,
-                        createdon: bpWidgerInboxPropsState.bpWidgetInboxProps.key2,
-                        location: bpWidgerInboxPropsState.bpWidgetInboxProps.key3,
-                        loanamount: '12345',
-                      )
-                    ),
-                    ElevatedButton(onPressed: () {}, child: Text('Save')),
-                  ],
-                ),
-              ),
-              GlobalStyles.fillerSizedBox50,
-              selectedIndex == index
-                  ? GlobalStyles.selectedIcon
-                  : GlobalStyles.fillerSizedBox50,
-            ],
-          ),
-        ),
-      ) :
-       DraggedInboxHolder(
-        onTapDraggedControl: () {
-          /// when draggedholder is selected , selected formcontrol
-          /// label and other properties should be autopopulate
-          /// props panel
-          ///
-          selectedIndex = index;
-
-          // BpwidgetProps bpWidgetPropsObj = props.bpwidgetProps!;
-          widget.onItemClicked!(props);
-          setState(() {});
-        },
-        labelText: 'List Inbox',
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border:
-                selectedIndex == index
-                    ? Border.all(width: 2, color: Colors.teal)
-                    : Border.all(width: 2, color: Colors.transparent),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              SizedBox(
-                child: Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
-                      child: LeadTileCard(
-                        title: 'title',
-                        subtitle: 'subtitle',
-                        icon: Icons.person,
-                        color: Colors.teal,
-                        phone: 'key3',
-                        createdon: 'key4',
-                        location: 'key5',
-                        loanamount: '12345',
-                      )
-                    ),
-                    ElevatedButton(onPressed: () {}, child: Text('Save')),
-                  ],
-                ),
-              ),
-              GlobalStyles.fillerSizedBox50,
-              selectedIndex == index
-                  ? GlobalStyles.selectedIcon
-                  : GlobalStyles.fillerSizedBox50,
-            ],
-          ),
-        ),
-      ),
+        inboxProps : bpWidgetInboxProps!,
+      )
     };
   }
 
@@ -494,7 +404,7 @@ class _ItemsPanelState extends State<ItemPanel> {
         children:
             itemsCopy.asMap().entries.map<Widget>((e) {
               Widget child = SizedBox(
-                height: e.value.widgetType!.name == 'inbox' ? 170 : 50,
+                height: e.value.widgetType!.name == 'inbox' ? 200 : 50,
                 width: 0,
                 child: Container(
                   decoration: BoxDecoration(

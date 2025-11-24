@@ -162,7 +162,8 @@ class DynamicForm extends StatelessWidget {
     final widgets =pagesSchema.bpWidgetList!.schema;
     final formGroup = buildFormGroup(widgets);
     final actionButtons = pagesSchema.appBar!.actionButton.elementAt(0);
-    final action = actionButtons['action'] as BpwidgetAction;
+    // final action = actionButtons['action'] as BpwidgetAction;
+    BpwidgetAction action = BpwidgetAction.fromJson(actionButtons['action']);
     print(actionButtons['name'].toString());
     
 

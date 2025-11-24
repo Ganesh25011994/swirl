@@ -55,6 +55,31 @@ class _InboxPropsPanelState extends State<InboxPropsPanel> {
       },
       builder: (context, state) {
         List<String>? keyListData = state.keyList!.isNotEmpty ? state.keyList : [];
+        if (widget.props != null) {
+          final  bpWidgetInboxProps = widget.props!.bpwidgetProps! as BPWidgetInboxProps;
+
+          if (bpWidgetInboxProps.apiName != '') {
+            bpWidgetInboxPropsForm.controls['apiName']?.updateValue(
+              bpWidgetInboxProps.apiName,
+            );
+          }
+          
+          bpWidgetInboxPropsForm.controls['title']?.updateValue(
+            bpWidgetInboxProps.title,
+          );
+          bpWidgetInboxPropsForm.controls['subtitle']?.updateValue(
+            bpWidgetInboxProps.subtitle,
+          );
+          bpWidgetInboxPropsForm.controls['key1']?.updateValue(
+            bpWidgetInboxProps.key1,
+          );
+          bpWidgetInboxPropsForm.controls['key2']?.updateValue(
+            bpWidgetInboxProps.key2,
+          );
+          bpWidgetInboxPropsForm.controls['key3']?.updateValue(
+            bpWidgetInboxProps.key3,
+          );
+        }
         
         return ReactiveForm(
           formGroup: bpWidgetInboxPropsForm,
@@ -77,7 +102,6 @@ class _InboxPropsPanelState extends State<InboxPropsPanel> {
                       labeltext: 'Select Api',
                       dropdownEntries: ['getLead', 'getProposalLead'],
                       onSelected: (value) {
-                        print("function successfully call here");
                         context.read<BpwidgetInboxPropsBloc>().add(
                           OnApiSelect(
                             apiName: bpWidgetInboxPropsForm.controls['apiName']!.value.toString()
